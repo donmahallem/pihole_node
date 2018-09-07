@@ -180,17 +180,20 @@ describe('QueryParamTool', () => {
             expect(mockHandleNumberQueryParameter.callCount).to.equal(0);
             expect(mockHandleStringQueryParameter.callCount).to.equal(0);
         });
-        it('should delegate to string handler', () => {
+        it('should set default', () => {
             const filter: testObject.QueryParameterFilter = {
-                required: true,
+                required: false,
                 name: "randomName",
-                type: testObject.QueryParameterType.BOOLEAN
+                type: testObject.QueryParameterType.BOOLEAN,
+                default: 29
             };
-            testObject.HandleQueryParameterFilter({ "randomName": "29" }, filter);
+            let testData: any = { "randomName2": "29" };
+            testObject.HandleQueryParameterFilter(testData, filter);
             expect(mockHandleIntegerQueryParameter.callCount).to.equal(0);
             expect(mockHandleBooleanQueryParameter.callCount).to.equal(0);
             expect(mockHandleNumberQueryParameter.callCount).to.equal(0);
-            expect(mockHandleStringQueryParameter.callCount).to.equal(1);
+            expect(mockHandleStringQueryParameter.callCount).to.equal(0);
+            expect(testData).to.deep.equal({ "randomName2": "29", "randomName": 29 });
         });
     });
     describe("handleIntegerQueryParameter", () => {
