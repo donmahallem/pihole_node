@@ -64,7 +64,11 @@
             "html",
             "lcov"
         ],
+        "exclude": [
+            "src/**/*.spec.ts"
+        ],
         "sourceMap": true,
-        "instrument": true
+        "instrument": true,
+        "all": true
     }
 }
