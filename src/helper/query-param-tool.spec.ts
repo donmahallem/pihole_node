@@ -10,7 +10,10 @@ import {
     QueryParameterType,
     QueryParameterFilter,
     HandleQueryParameterFilter,
-    ParseFromToQueryParameter
+    ParseFromToQueryParameter,
+    handleIntegerQueryParameter,
+    handleBooleanQueryParameter,
+    handleNumberQueryParameter
 } from './query-param-tools';
 import {
     RouteError
@@ -129,6 +132,30 @@ describe('QueryParamTool', () => {
             expect(function () {
                 HandleQueryParameterFilter({}, filter);
             }).to.throw(RouteError, '"randomName" query parameter is required')
+                .with.property('statusCode', 401);;
+        });
+    });
+    describe("handleIntegerQueryParameter", () => {
+
+        it('should pass if no parameter matches and optional', () => {
+            const filter: QueryParameterFilter = {
+                required: false,
+                name: "randomName",
+                type: QueryParameterType.INTEGER
+            };
+            let testValue: any = { "randomName": "129" };
+            handleIntegerQueryParameter(testValue, filter);
+            expect(testValue).to.deep.equal({ "randomName": 129 });
+        });
+        it('should fail if no parameter matches and optional', () => {
+            const filter: QueryParameterFilter = {
+                required: true,
+                name: "randomName",
+                type: QueryParameterType.INTEGER
+            };
+            expect(function () {
+                handleIntegerQueryParameter("12j", filter);
+            }).to.throw(RouteError, '"randomName" query parameter is not an Integer')
                 .with.property('statusCode', 401);;
         });
     });

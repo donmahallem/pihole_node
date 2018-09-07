@@ -17,48 +17,82 @@ export interface QueryParameterFilter {
     required: boolean;
     name: string;
 }
+
+export const handleIntegerQueryParameter = (parameters: any, filter: QueryParameterFilter) => {
+    const req: RegExp = /^(\+|\-)?[0-9]+$/;
+    const parameterValue: any = parameters[filter.name];
+    if (req.test(parameterValue)) {
+        const value: number = parseInt(parameterValue);
+        if (filter.min && value < filter.min) {
+            throw new RouteError(401, "\"" + filter.name + "\" query parameter must not be smaller than " + filter.min);
+        }
+        if (filter.max && value > filter.max) {
+            throw new RouteError(401, "\"" + filter.name + "\" query parameter must not be larger than " + filter.max);
+        }
+        parameters[filter.name] = value;
+    } else {
+        throw new RouteError(401, "\"" + filter.name + "\" query parameter is not an Integer");
+    }
+};
+export const handleNumberQueryParameter = (parameter: any, filter: QueryParameterFilter) => {
+    let value: any = parseFloat(parameter);
+    if (isNumber(value)) {
+        if (filter.min && value < filter.min) {
+            throw new RouteError(401, "\"" + filter.name + "\" query parameter must not be smaller than " + filter.min);
+        }
+        if (filter.max && value > filter.max) {
+            throw new RouteError(401, "\"" + filter.name + "\" query parameter must not be larger than " + filter.max);
+        }
+        parameter = value;
+    } else {
+        throw new RouteError(401, "\"" + filter.name + "\" query parameter is not a Number");
+    }
+};
+export const handleBooleanQueryParameter = (parameter: any, filter: QueryParameterFilter) => {
+    const reg: RegExp = /^(1|0|true|false)$/;
+    if (reg.test(parameter)) {
+        if (parameter == "true" || parameter == "1" || parameter == true) {
+            parameter = true;
+        } else {
+            parameter = false;
+        }
+    } else {
+        throw new RouteError(401, "\"" + filter.name + "\" query parameter is not a Boolean");
+    }
+};
+export const handleStringQueryParameter = (parameter: any, filter: QueryParameterFilter) => {
+
+    let value: any = parseFloat(parameter);
+    if (isNumber(value)) {
+        if (filter.min && value < filter.min) {
+            throw new RouteError(401, "\"" + filter.name + "\" query parameter must not be smaller than " + filter.min);
+        }
+        if (filter.max && value > filter.max) {
+            throw new RouteError(401, "\"" + filter.name + "\" query parameter must not be larger than " + filter.max);
+        }
+        parameter[filter.name] = value;
+    } else {
+        throw new RouteError(401, "\"" + filter.name + "\" query parameter is not a Number");
+    }
+};
+
 export const HandleQueryParameterFilter = (parameters: any, filter: QueryParameterFilter): void => {
     if (filter.name in parameters) {
         const parameterValue: any = parameters[filter.name];
-        if (filter.type == QueryParameterType.INTEGER) {
-            const req: RegExp = /^(+|-)?(0-9)+$/;
-            if (req.test(parameterValue)) {
-                const value: number = parseInt(parameterValue);
-                if (filter.min && value < filter.min) {
-                    throw new RouteError(401, "\"" + filter.name + "\" query parameter must not be smaller than " + filter.min);
-                }
-                if (filter.max && value > filter.max) {
-                    throw new RouteError(401, "\"" + filter.name + "\" query parameter must not be larger than " + filter.max);
-                }
-                parameters[filter.name] = value;
-            } else {
-                throw new RouteError(401, "\"" + filter.name + "\" query parameter is not an Integer");
-            }
-        } else if (filter.type == QueryParameterType.NUMBER) {
-            let value: any = parseFloat(parameterValue);
-            if (isNumber(value)) {
-                if (filter.min && value < filter.min) {
-                    throw new RouteError(401, "\"" + filter.name + "\" query parameter must not be smaller than " + filter.min);
-                }
-                if (filter.max && value > filter.max) {
-                    throw new RouteError(401, "\"" + filter.name + "\" query parameter must not be larger than " + filter.max);
-                }
-                parameters[filter.name] = value;
-            } else {
-                throw new RouteError(401, "\"" + filter.name + "\" query parameter is not a Number");
-            }
-        } else if (filter.type == QueryParameterType.BOOLEAN) {
-            const reg: RegExp = /^(1|0|true|false)$/;
-            let value: any = parameters[filter.name];
-            if (reg.test(value)) {
-                if (value == "true" || value == "1" || value == true) {
-                    parameters[filter.name] = true;
-                } else {
-                    parameters[filter.name] = false;
-                }
-            } else {
-                throw new RouteError(401, "\"" + filter.name + "\" query parameter is not a Boolean");
-            }
+        switch (filter.type) {
+            case QueryParameterType.INTEGER:
+                handleIntegerQueryParameter(parameters, filter);
+                return;
+            case QueryParameterType.NUMBER:
+                handleNumberQueryParameter(parameterValue, filter);
+                return;
+            case QueryParameterType.STRING:
+                handleStringQueryParameter(parameterValue, filter);
+                return;
+            case QueryParameterType.BOOLEAN:
+                handleBooleanQueryParameter(parameterValue, filter);
+                return;
+
         }
     } else if (filter.required) {
         throw new RouteError(401, "\"" + filter.name + "\" query parameter is required");
