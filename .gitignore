@@ -1,0 +1,11 @@
+/node_modules/*
+
+# Coveralls
+coverage
+
+/client2/
+
+pihole-FTL.db
+
+dist/
+docs/
