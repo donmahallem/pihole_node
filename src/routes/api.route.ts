@@ -1,15 +1,8 @@
 /*eslint no-console: ["error", { allow: ["warn", "error", "log"] }] */
 
 import * as express from "express";
-import * as readline from "readline";
-import { RouteError } from "./route-error";
-import { LogHelper } from "./../helper/log-helper";
-import * as moment from "moment";
-import { QueryTypes } from "./../models";
 import { Api } from "./api";
 import { Middlewares } from "./middlewares";
-import { PiholeDatabase } from "../helper/pihole-database";
-import { isNumber } from "util";
 import * as TopRoutes from "./top/route";
 
 /**
