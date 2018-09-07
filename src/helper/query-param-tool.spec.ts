@@ -144,6 +144,42 @@ describe('QueryParamTool', () => {
             expect(mockHandleNumberQueryParameter.callCount).to.equal(0);
             expect(mockHandleStringQueryParameter.callCount).to.equal(0);
         });
+        it('should delegate to integer handler', () => {
+            const filter: testObject.QueryParameterFilter = {
+                required: true,
+                name: "randomName",
+                type: testObject.QueryParameterType.INTEGER
+            };
+            testObject.HandleQueryParameterFilter({ "randomName": 29 }, filter);
+            expect(mockHandleIntegerQueryParameter.callCount).to.equal(1);
+            expect(mockHandleBooleanQueryParameter.callCount).to.equal(0);
+            expect(mockHandleNumberQueryParameter.callCount).to.equal(0);
+            expect(mockHandleStringQueryParameter.callCount).to.equal(0);
+        });
+        it('should delegate to number handler', () => {
+            const filter: testObject.QueryParameterFilter = {
+                required: true,
+                name: "randomName",
+                type: testObject.QueryParameterType.NUMBER
+            };
+            testObject.HandleQueryParameterFilter({ "randomName": 29 }, filter);
+            expect(mockHandleIntegerQueryParameter.callCount).to.equal(0);
+            expect(mockHandleBooleanQueryParameter.callCount).to.equal(0);
+            expect(mockHandleNumberQueryParameter.callCount).to.equal(1);
+            expect(mockHandleStringQueryParameter.callCount).to.equal(0);
+        });
+        it('should delegate to boolean handler', () => {
+            const filter: testObject.QueryParameterFilter = {
+                required: true,
+                name: "randomName",
+                type: testObject.QueryParameterType.BOOLEAN
+            };
+            testObject.HandleQueryParameterFilter({ "randomName": 29 }, filter);
+            expect(mockHandleIntegerQueryParameter.callCount).to.equal(0);
+            expect(mockHandleBooleanQueryParameter.callCount).to.equal(1);
+            expect(mockHandleNumberQueryParameter.callCount).to.equal(0);
+            expect(mockHandleStringQueryParameter.callCount).to.equal(0);
+        });
     });
     describe("handleIntegerQueryParameter", () => {
 
