@@ -128,7 +128,8 @@ describe('QueryParamTool', () => {
             };
             expect(function () {
                 HandleQueryParameterFilter({}, filter);
-            }).to.throw('"randomName" query parameter is required');
+            }).to.throw(RouteError, '"randomName" query parameter is required')
+                .with.property('statusCode', 401);;
         });
     });
 });
