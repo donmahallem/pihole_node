@@ -5,12 +5,12 @@
     "main": "index.js",
     "scripts": {
         "test2": "mocha --timeout 10000 --recursive --check-leaks",
-        "test": "mocha --timeout 10000--check-leaks -r ts-node/register src/**/*.spec.ts",
+        "test": "mocha --timeout 10000 --check-leaks -r ts-node/register src/**/*.spec.ts",
         "start": "npm run build:live",
         "build:live": "nodemon",
         "build": "node ./node_modules/typescript/bin/tsc --outdir ./dist/ --baseUrl ./src/",
         "build:doc": "node ./node_modules/typedoc/bin/typedoc --out ./tt2/ --mode modules --exclude /**/index ./src/",
-        "test-ci": "istanbul cover node_modules/mocha/bin/_mocha  --report lcovonly --  --timeout 10000 --recursive --reporter spec --check-leaks test/"
+        "test-ci": "istanbul cover node_modules/mocha/bin/_mocha  --report lcovonly --  --timeout 10000 --recursive --reporter spec --check-leaks -r ts-node/register src/**/*.spec.ts"
     },
     "author": "",
     "license": "MIT",
