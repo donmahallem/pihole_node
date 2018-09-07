@@ -1,4 +1,4 @@
-import { RouteError } from "../routes";
+import { RouteError } from "../routes/route-error";
 import * as express from "express";
 import { isNumber } from "util";
 

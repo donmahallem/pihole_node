@@ -6,7 +6,6 @@ import {
 } from "./../models";
 import { LogHelper } from "./../helper";
 import { RouteError } from "./route-error";
-import * as through2 from "through2";
 import * as express from "express";
 
 export class Api {

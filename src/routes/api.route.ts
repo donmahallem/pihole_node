@@ -2,7 +2,6 @@
 
 import * as express from "express";
 import * as readline from "readline";
-import * as through2 from "through2"
 import { RouteError } from "./route-error";
 import { LogHelper } from "./../helper/log-helper";
 import * as moment from "moment";
