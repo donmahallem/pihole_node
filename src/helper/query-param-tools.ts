@@ -21,8 +21,9 @@ export const HandleQueryParameterFilter = (parameters: any, filter: QueryParamet
     if (parameters[filter.name]) {
         const parameterValue: any = parameters[filter.name];
         if (filter.type == QueryParameterType.INTEGER) {
-            let value = parseInt(parameterValue);
-            if (Number.isSafeInteger(value)) {
+            const req: RegExp = /^(+|-)?(0-9)+$/;
+            if (req.test(parameterValue)) {
+                const value: number = parseInt(parameterValue);
                 if (filter.min && value < filter.min) {
                     throw new RouteError(401, "\"" + filter.name + "\" query parameter must not be smaller than " + filter.min);
                 }
@@ -132,6 +133,7 @@ export const ParseFromToQueryParameter = (): express.RequestHandler => {
                     req.query.from = parsedFrom;
                 } else {
                     next(new RouteError(401, "From query parameter must be a number"));
+                    return;
                 }
             }
             if (req.query.to) {
@@ -140,6 +142,7 @@ export const ParseFromToQueryParameter = (): express.RequestHandler => {
                     req.query.to = parsedTo;
                 } else {
                     next(new RouteError(401, "To query parameter must be a number"));
+                    return;
                 }
             }
         }
