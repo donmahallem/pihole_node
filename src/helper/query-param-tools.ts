@@ -18,7 +18,7 @@ export interface QueryParameterFilter {
     name: string;
 }
 export const HandleQueryParameterFilter = (parameters: any, filter: QueryParameterFilter): void => {
-    if (parameters[filter.name]) {
+    if (filter.name in parameters) {
         const parameterValue: any = parameters[filter.name];
         if (filter.type == QueryParameterType.INTEGER) {
             const req: RegExp = /^(+|-)?(0-9)+$/;
