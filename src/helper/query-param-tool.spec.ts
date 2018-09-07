@@ -6,15 +6,7 @@ import {
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 import 'mocha';
-import {
-    QueryParameterType,
-    QueryParameterFilter,
-    HandleQueryParameterFilter,
-    ParseFromToQueryParameter,
-    handleIntegerQueryParameter,
-    handleBooleanQueryParameter,
-    handleNumberQueryParameter
-} from './query-param-tools';
+import * as testObject from './query-param-tools';
 import {
     RouteError
 } from "../routes/route-error";
@@ -40,7 +32,7 @@ describe('QueryParamTool', () => {
         });
         it('should pass without query arguments', () => {
             expect(1).to.equal(1);
-            let asdf: RequestHandler = ParseFromToQueryParameter();
+            let asdf: RequestHandler = testObject.ParseFromToQueryParameter();
             expect(asdf).to.be.not.null;
             mockRequest = {};
             mockResponse = {};
@@ -51,7 +43,7 @@ describe('QueryParamTool', () => {
         });
         it('should pass with query arguments', () => {
             expect(1).to.equal(1);
-            let asdf: RequestHandler = ParseFromToQueryParameter();
+            let asdf: RequestHandler = testObject.ParseFromToQueryParameter();
             expect(asdf).to.be.not.null;
             mockRequest = { query: {} };
             mockResponse = {};
@@ -62,7 +54,7 @@ describe('QueryParamTool', () => {
         });
         it('should pass with query arguments for from', () => {
             expect(1).to.equal(1);
-            let asdf: RequestHandler = ParseFromToQueryParameter();
+            let asdf: RequestHandler = testObject.ParseFromToQueryParameter();
             expect(asdf).to.be.not.null;
             mockRequest = { query: { from: "19" } };
             mockResponse = {};
@@ -73,7 +65,7 @@ describe('QueryParamTool', () => {
         });
         it('should pass with query arguments for from and round floating point', () => {
             expect(1).to.equal(1);
-            let asdf: RequestHandler = ParseFromToQueryParameter();
+            let asdf: RequestHandler = testObject.ParseFromToQueryParameter();
             expect(asdf).to.be.not.null;
             mockRequest = { query: { from: "19.124" } };
             mockResponse = {};
@@ -84,7 +76,7 @@ describe('QueryParamTool', () => {
         });
         it('should throw error for invalid from parameter', () => {
             expect(1).to.equal(1);
-            let asdf: RequestHandler = ParseFromToQueryParameter();
+            let asdf: RequestHandler = testObject.ParseFromToQueryParameter();
             expect(asdf).to.be.not.null;
             mockRequest = { query: { from: "asdf213f" } };
             mockResponse = {};
@@ -99,62 +91,80 @@ describe('QueryParamTool', () => {
 
     describe("HandleQueryParameterFilter", () => {
 
-        var mockRequest;
+        var mockHandleIntegerQueryParameter;
+        var mockHandleBooleanQueryParameter;
+        var mockHandleNumberQueryParameter;
+        var mockHandleStringQueryParameter;
         var mockResponse;
         var mockNext: sinon.spy;
         beforeEach((done) => {
-            mockRequest = sinon.mock({});
             mockResponse = sinon.mock({});
             mockNext = sinon.spy();
+            mockHandleIntegerQueryParameter = sinon.stub(testObject, "handleIntegerQueryParameter");
+            mockHandleBooleanQueryParameter = sinon.stub(testObject, "handleBooleanQueryParameter");
+            mockHandleNumberQueryParameter = sinon.stub(testObject, "handleNumberQueryParameter");
+            mockHandleStringQueryParameter = sinon.stub(testObject, "handleStringQueryParameter");
             done();
             //mockRequest.expects("method").once().throws();
         });
 
         afterEach(() => {
+            mockHandleIntegerQueryParameter.restore();
+            mockHandleBooleanQueryParameter.restore();
+            mockHandleNumberQueryParameter.restore();
+            mockHandleStringQueryParameter.restore();
             //mockRequest.verify();
             //mockResponse.verify();
         });
 
         it('should pass if no parameter matches and optional', () => {
-            const filter: QueryParameterFilter = {
+            const filter: testObject.QueryParameterFilter = {
                 required: false,
                 name: "randomName",
-                type: QueryParameterType.INTEGER
+                type: testObject.QueryParameterType.INTEGER
             };
-            HandleQueryParameterFilter({}, filter);
+            testObject.HandleQueryParameterFilter({}, filter);
+            expect(mockHandleIntegerQueryParameter.callCount).to.equal(0);
+            expect(mockHandleBooleanQueryParameter.callCount).to.equal(0);
+            expect(mockHandleNumberQueryParameter.callCount).to.equal(0);
+            expect(mockHandleStringQueryParameter.callCount).to.equal(0);
         });
         it('should fail if no parameter matches and optional', () => {
-            const filter: QueryParameterFilter = {
+            const filter: testObject.QueryParameterFilter = {
                 required: true,
                 name: "randomName",
-                type: QueryParameterType.INTEGER
+                type: testObject.QueryParameterType.INTEGER
             };
             expect(function () {
-                HandleQueryParameterFilter({}, filter);
+                testObject.HandleQueryParameterFilter({}, filter);
             }).to.throw(RouteError, '"randomName" query parameter is required')
-                .with.property('statusCode', 401);;
+                .with.property('statusCode', 401);
+            expect(mockHandleIntegerQueryParameter.callCount).to.equal(0);
+            expect(mockHandleBooleanQueryParameter.callCount).to.equal(0);
+            expect(mockHandleNumberQueryParameter.callCount).to.equal(0);
+            expect(mockHandleStringQueryParameter.callCount).to.equal(0);
         });
     });
     describe("handleIntegerQueryParameter", () => {
 
         it('should pass if no parameter matches and optional', () => {
-            const filter: QueryParameterFilter = {
+            const filter: testObject.QueryParameterFilter = {
                 required: false,
                 name: "randomName",
-                type: QueryParameterType.INTEGER
+                type: testObject.QueryParameterType.INTEGER
             };
             let testValue: any = { "randomName": "129" };
-            handleIntegerQueryParameter(testValue, filter);
+            testObject.handleIntegerQueryParameter(testValue, filter);
             expect(testValue).to.deep.equal({ "randomName": 129 });
         });
         it('should fail if no parameter matches and optional', () => {
-            const filter: QueryParameterFilter = {
+            const filter: testObject.QueryParameterFilter = {
                 required: true,
                 name: "randomName",
-                type: QueryParameterType.INTEGER
+                type: testObject.QueryParameterType.INTEGER
             };
             expect(function () {
-                handleIntegerQueryParameter("12j", filter);
+                testObject.handleIntegerQueryParameter("12j", filter);
             }).to.throw(RouteError, '"randomName" query parameter is not an Integer')
                 .with.property('statusCode', 401);;
         });
