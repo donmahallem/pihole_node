@@ -5,20 +5,22 @@ import {
     validate,
     ValidatorResult,
     Options,
-    SchemaContext
+    SchemaContext,
+    RewriteFunction
 } from "jsonschema";
+
+export const rewriteDefaultValue: RewriteFunction = (instance: any, schema: Schema, options: Options, ctx: SchemaContext): any => {
+    if (schema.defaultValue && instance === undefined) {
+        return schema.defaultValue;
+    } else {
+        return instance;
+    }
+};
 
 export const queryParameterValidator = (param: Schema): express.RequestHandler => {
     const options: Options = {
         allowUnknownAttributes: false,
-        rewrite: (instance: any, schema: Schema, options: Options, ctx: SchemaContext): any => {
-            console.log("Instance:", instance, "Schema:", schema);
-            if (schema.defaultValue && instance === undefined) {
-                return schema.defaultValue;
-            } else {
-                return instance;
-            }
-        }
+        rewrite: rewriteDefaultValue
     };
     return (req: express.Request, res: express.Response, next: express.NextFunction) => {
         let testData: any;

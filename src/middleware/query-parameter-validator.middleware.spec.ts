@@ -10,7 +10,7 @@ import * as testObject from './query-parameter-validator.middleware';
 import {
     RouteError
 } from "../routes/route-error";
-import { Schema, SchemaError } from "jsonschema";
+import { Schema, SchemaError, SchemaContext } from "jsonschema";
 
 describe('QueryParamTool', () => {
 
@@ -99,6 +99,27 @@ describe('QueryParamTool', () => {
             expect(next.callCount).to.equal(1);
             expect(next.getCall(0).args.length).to.equal(1);
             expect(next.getCall(0).args[0]).to.be.an.instanceof(RouteError);
+        });
+    });
+    describe("rewriteDefaultValue", () => {
+
+        it('should set default value if missing', () => {
+            let schema: Schema = {
+                "type": "integer",
+                defaultValue: 29
+            }
+            const ctx: any = {};
+            const result: any = testObject.rewriteDefaultValue(undefined, schema, {}, ctx);
+            expect(result).to.equal(29);
+        });
+        it('should not set default value if missing', () => {
+            let schema: Schema = {
+                "type": "integer",
+                defaultValue: 29
+            }
+            const ctx: any = {};
+            const result: any = testObject.rewriteDefaultValue(54, schema, {}, ctx);
+            expect(result).to.equal(54);
         });
     });
 });
