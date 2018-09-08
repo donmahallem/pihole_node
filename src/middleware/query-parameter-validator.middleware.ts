@@ -30,7 +30,6 @@ export const queryParameterValidator = (param: Schema): express.RequestHandler =
             testData = {};
         }
         const result: ValidatorResult = validate(testData, param, options);
-        console.log(result.instance);
         if (result.valid) {
             next();
         } else {

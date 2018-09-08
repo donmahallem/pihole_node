@@ -16,7 +16,24 @@ describe('QueryParamTool', () => {
 
     describe("ParseFromToQUeryParameter", () => {
 
-        it('should pass without query arguments', () => {
+        var testStub: sinon.SinonStub;
+        let nextSpy: sinon.SinonSpy;
+        before(() => {
+            testStub = sinon.stub(testObject, "rewriteDefaultValue");
+            nextSpy = sinon.spy();
+        });
+        beforeEach(() => {
+            testStub.returnsArg(0);
+        })
+
+        afterEach(() => {
+            testStub.reset();
+            nextSpy.resetHistory();
+        });
+        after(() => {
+            testStub.restore();
+        });
+        it('should pass with query arguments', () => {
             let schema: Schema = {
                 "type": "object",
                 "properties": {
@@ -29,36 +46,14 @@ describe('QueryParamTool', () => {
             let asdf: RequestHandler = testObject.queryParameterValidator(schema);
             let req: any = { query: { offset: 2 } };
             let res: any = {};
-            let next: any = sinon.spy();
             expect(asdf).to.be.not.null;
-            asdf(req, res, next);
-            const nextSpy: sinon.SinonSpy = next;
-            expect(next.callCount).to.equal(1);
-            expect(next.getCall(0).args.length).to.equal(0);
+            asdf(req, res, <any>nextSpy);
+            expect(nextSpy.callCount).to.equal(1);
+            expect(nextSpy.getCall(0).args.length).to.equal(0);
+
+            expect(testStub.callCount).to.equal(2);
         });
         it('should pass without query arguments', () => {
-            let schema: Schema = {
-                "type": "object",
-                "properties": {
-                    "offset": {
-                        "type": "integer",
-                        "minimum": 0
-                    }
-                },
-                required: ["offset"]
-            }
-            let asdf: RequestHandler = testObject.queryParameterValidator(schema);
-            let req: any = { query: { offset: "2a" } };
-            let res: any = {};
-            let next: any = sinon.spy();
-            expect(asdf).to.be.not.null;
-            asdf(req, res, next);
-            const nextSpy: sinon.SinonSpy = next;
-            expect(next.callCount).to.equal(1);
-            expect(next.getCall(0).args.length).to.equal(1);
-            expect(next.getCall(0).args[0]).to.be.an.instanceof(RouteError);
-        });
-        it('should pass without query object', () => {
             let schema: Schema = {
                 "type": "object",
                 "properties": {
@@ -71,14 +66,14 @@ describe('QueryParamTool', () => {
             let asdf: RequestHandler = testObject.queryParameterValidator(schema);
             let req: any = {};
             let res: any = {};
-            let next: any = sinon.spy();
             expect(asdf).to.be.not.null;
-            asdf(req, res, next);
-            const nextSpy: sinon.SinonSpy = next;
-            expect(next.callCount).to.equal(1);
-            expect(next.getCall(0).args.length).to.equal(0);
+            asdf(req, res, nextSpy);
+            expect(nextSpy.callCount).to.equal(1);
+            expect(nextSpy.getCall(0).args.length).to.equal(0);
+
+            expect(testStub.callCount).to.equal(2);
         });
-        it('should fail due to missing required object', () => {
+        it('should not pass without required property', () => {
             let schema: Schema = {
                 "type": "object",
                 "properties": {
@@ -87,18 +82,20 @@ describe('QueryParamTool', () => {
                         "minimum": 0
                     }
                 },
-                required: ["offset"]
+                "required": [
+                    "offset"
+                ]
             }
             let asdf: RequestHandler = testObject.queryParameterValidator(schema);
-            let req: any = {};
+            let req: any = { query: { randomArg: 229 } };
             let res: any = {};
-            let next: any = sinon.spy();
             expect(asdf).to.be.not.null;
-            asdf(req, res, next);
-            const nextSpy: sinon.SinonSpy = next;
-            expect(next.callCount).to.equal(1);
-            expect(next.getCall(0).args.length).to.equal(1);
-            expect(next.getCall(0).args[0]).to.be.an.instanceof(RouteError);
+            asdf(req, res, nextSpy);
+            expect(nextSpy.callCount).to.equal(1);
+            expect(nextSpy.getCall(0).args.length).to.equal(1);
+            expect(nextSpy.getCall(0).args[0]).to.be.instanceof(RouteError, "next should have been called with an RouteError");
+            expect(nextSpy.getCall(0).args[0]).has.property("statusCode").equal(401, "should have a statusCode of 401");
+            expect(testStub.callCount).to.equal(2);
         });
     });
     describe("rewriteDefaultValue", () => {
