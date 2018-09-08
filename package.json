@@ -4,13 +4,13 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "test2": "mocha --timeout 10000 --recursive --check-leaks",
         "test": "mocha --timeout 10000 --check-leaks -r ts-node/register src/**/*.spec.ts",
         "start": "npm run build:live",
         "build:live": "nodemon",
         "build": "node ./node_modules/typescript/bin/tsc --outdir ./dist/ --baseUrl ./src/",
         "build:doc": "node ./node_modules/typedoc/bin/typedoc --out ./tt2/ --mode modules --exclude /**/index ./src/",
-        "test-ci": "nyc mocha --opts mocha.opts"
+        "test-ci": "nyc ts-mocha -p tsconfig.json src/**/*.spec.ts src/**/*.test.tsx",
+        "test2": "ts-mocha -p tsconfig.json src/**/*.spec.ts"
     },
     "author": "",
     "license": "MIT",
@@ -45,6 +45,7 @@
         "nyc": "^13.0.1",
         "sinon": "^6.2.0",
         "sinon-chai": "^3.2.0",
+        "ts-mocha": "^2.0.0",
         "ts-node": "^7.0.1",
         "typedoc": "^0.12.0",
         "typescript": "^3.0.3"
@@ -58,9 +59,7 @@
             ".ts",
             ".tsx"
         ],
-        "require": [
-            "ts-node/register"
-        ],
+        "require": [],
         "reporter": [
             "text-summary",
             "html",

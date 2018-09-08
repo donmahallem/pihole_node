@@ -1,4 +1,6 @@
-const ini = require("ini");
-const fs = require("fs");
-const appDefaults = require("./defaults.js");
-module.exports = ini.parse(fs.readFileSync(appDefaults.setupVars, "utf-8"));
+import * as ini from "ini";
+import * as fs from "fs";
+import { AppDefaults } from "./defaults";
+
+const defaults: any = new AppDefaults();
+module.exports = ini.parse(fs.readFileSync(defaults.setupVars, "utf-8"));

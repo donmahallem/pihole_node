@@ -3,16 +3,13 @@
         "target": "es6",
         "module": "commonjs",
         "outDir": "dist",
-        "sourceMap": true
+        "sourceMap": true,
+        "declaration": false
     },
-    "files": [
-        "./node_modules/@types/mocha/index.d.ts",
-        "./node_modules/@types/node/index.d.ts",
-        "./src/extensions.d.ts"
-    ],
-    "include": [
-        "src/**/*.ts"
-    ],
+    "typeAcquisition": {
+        "enable": true
+    },
+    "baseUrl": "./src",
     "exclude": [
         "node_modules"
     ]
