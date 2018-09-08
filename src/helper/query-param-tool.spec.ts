@@ -227,9 +227,48 @@ describe('QueryParamTool', () => {
                 type: testObject.QueryParameterType.INTEGER
             };
             expect(function () {
-                testObject.handleIntegerQueryParameter("12j", filter);
+                let testValue: any = { "randomName": "129j" };
+                testObject.handleIntegerQueryParameter(testValue, filter);
             }).to.throw(RouteError, '"randomName" query parameter is not an Integer')
-                .with.property('statusCode', 401);;
+                .with.property('statusCode', 401);
+        });
+        it('should fail for value being below minimum', () => {
+            const filter: testObject.QueryParameterFilter = {
+                required: true,
+                name: "randomName",
+                type: testObject.QueryParameterType.INTEGER,
+                min: 10
+            };
+            expect(function () {
+                let testValue: any = { "randomName": "1" };
+                testObject.handleIntegerQueryParameter(testValue, filter);
+            }).to.throw(RouteError, '"randomName" query parameter must not be smaller than 10')
+                .with.property('statusCode', 401);
+        });
+        it('should fail for value above maximum', () => {
+            const filter: testObject.QueryParameterFilter = {
+                required: true,
+                name: "randomName",
+                type: testObject.QueryParameterType.INTEGER,
+                max: 100
+            };
+            expect(function () {
+                let testValue: any = { "randomName": "129" };
+                testObject.handleIntegerQueryParameter(testValue, filter);
+            }).to.throw(RouteError, '"randomName" query parameter must not be larger than 100')
+                .with.property('statusCode', 401);
+        });
+        it('should pass for being between max and min', () => {
+            const filter: testObject.QueryParameterFilter = {
+                required: true,
+                name: "randomName",
+                type: testObject.QueryParameterType.INTEGER,
+                max: 100,
+                min: 10
+            };
+            let testValue: any = { "randomName": "29" };
+            testObject.handleIntegerQueryParameter(testValue, filter);
+            expect(testValue).to.deep.equal({ "randomName": 29 });
         });
     });
 });
