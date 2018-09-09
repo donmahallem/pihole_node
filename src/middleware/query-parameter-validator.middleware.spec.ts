@@ -11,7 +11,7 @@ import * as testObject from './query-parameter-validator.middleware';
 import {
     RouteError
 } from "../routes/route-error";
-import { Schema, SchemaError, SchemaContext } from "jsonschema";
+import * as jsonschema from "jsonschema";
 
 describe('QueryParamTool', () => {
 
@@ -35,7 +35,7 @@ describe('QueryParamTool', () => {
             testStub.restore();
         });
         it('should pass with query arguments', () => {
-            let schema: Schema = {
+            let schema: jsonschema.Schema = {
                 "type": "object",
                 "properties": {
                     "offset": {
@@ -55,7 +55,7 @@ describe('QueryParamTool', () => {
             expect(testStub.callCount).to.equal(2);
         });
         it('should pass without query arguments', () => {
-            let schema: Schema = {
+            let schema: jsonschema.Schema = {
                 "type": "object",
                 "properties": {
                     "offset": {
@@ -75,7 +75,7 @@ describe('QueryParamTool', () => {
             expect(testStub.callCount).to.equal(2);
         });
         it('should not pass without required property', () => {
-            let schema: Schema = {
+            let schema: jsonschema.Schema = {
                 "type": "object",
                 "properties": {
                     "offset": {
@@ -102,7 +102,7 @@ describe('QueryParamTool', () => {
     describe("rewriteDefaultValue", () => {
 
         it('should set default value if missing', () => {
-            let schema: Schema = {
+            let schema: jsonschema.Schema = {
                 "type": "integer",
                 defaultValue: 29
             }
@@ -111,7 +111,7 @@ describe('QueryParamTool', () => {
             expect(result).to.equal(29);
         });
         it('should not set default value if missing', () => {
-            let schema: Schema = {
+            let schema: jsonschema.Schema = {
                 "type": "integer",
                 defaultValue: 29
             }

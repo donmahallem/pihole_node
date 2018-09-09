@@ -1,6 +1,4 @@
-import * as jsonsc from "jsonschema";
-
-
+import * as jsonschema from "jsonschema";
 declare module "jsonschema" {
 
     export interface Schema {

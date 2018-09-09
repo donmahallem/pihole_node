@@ -4,8 +4,8 @@
         "module": "commonjs",
         "outDir": "dist",
         "rootDir": "./src",
-        "sourceMap": false,
-        "declaration": false
+        "sourceMap": true,
+        "declaration": true
     },
     "typeAcquisition": {
         "enable": true

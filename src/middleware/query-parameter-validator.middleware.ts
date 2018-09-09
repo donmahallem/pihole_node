@@ -1,3 +1,4 @@
+/// <reference path="../extensions.d.ts" />
 import * as express from "express";
 import { RouteError } from "../routes/route-error";
 import {
@@ -31,6 +32,7 @@ export const queryParameterValidator = (param: Schema): express.RequestHandler =
         }
         const result: ValidatorResult = validate(testData, param, options);
         if (result.valid) {
+            req.query = result.instance;
             next();
         } else {
             next(new RouteError(401, result.errors[0].message));
