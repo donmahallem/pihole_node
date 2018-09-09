@@ -13,15 +13,17 @@ import {
 } from "../routes/route-error";
 import * as jsonschema from "jsonschema";
 
-describe('QueryParamTool', () => {
+describe('QueryParameterValidatorMiddleware', () => {
 
-    describe("ParseFromToQUeryParameter", () => {
+    describe("queryParameterValidator", () => {
 
         var testStub: sinon.SinonStub;
         let nextSpy: sinon.SinonSpy;
+        let validateStub: sinon.SinonStub;
         before(() => {
             testStub = sinon.stub(testObject, "rewriteDefaultValue");
             nextSpy = sinon.spy();
+            validateStub = sinon.stub(jsonschema, "validate");
         });
         beforeEach(() => {
             testStub.returnsArg(0);
@@ -29,12 +31,16 @@ describe('QueryParamTool', () => {
 
         afterEach(() => {
             testStub.reset();
+            validateStub.reset();
             nextSpy.resetHistory();
         });
         after(() => {
             testStub.restore();
+            validateStub.restore();
         });
         it('should pass with query arguments', () => {
+            const testInstance: any = { testdata1: 129, testdata2: "asdf" };
+            validateStub.returns({ valid: true, instance: testInstance });
             let schema: jsonschema.Schema = {
                 "type": "object",
                 "properties": {
@@ -45,58 +51,21 @@ describe('QueryParamTool', () => {
                 }
             }
             let asdf: RequestHandler = testObject.queryParameterValidator(schema);
-            let req: any = { query: { offset: 2 } };
+            let queryData: any = { offset: 2 };
+            let req: any = { query: queryData };
             let res: any = {};
             expect(asdf).to.be.not.null;
             asdf(req, res, <any>nextSpy);
             expect(nextSpy.callCount).to.equal(1);
             expect(nextSpy.getCall(0).args.length).to.equal(0);
 
-            expect(testStub.callCount).to.equal(2);
-        });
-        it('should pass without query arguments', () => {
-            let schema: jsonschema.Schema = {
-                "type": "object",
-                "properties": {
-                    "offset": {
-                        "type": "integer",
-                        "minimum": 0
-                    }
-                }
-            }
-            let asdf: RequestHandler = testObject.queryParameterValidator(schema);
-            let req: any = {};
-            let res: any = {};
-            expect(asdf).to.be.not.null;
-            asdf(req, res, nextSpy);
-            expect(nextSpy.callCount).to.equal(1);
-            expect(nextSpy.getCall(0).args.length).to.equal(0);
-
-            expect(testStub.callCount).to.equal(2);
-        });
-        it('should not pass without required property', () => {
-            let schema: jsonschema.Schema = {
-                "type": "object",
-                "properties": {
-                    "offset": {
-                        "type": "integer",
-                        "minimum": 0
-                    }
-                },
-                "required": [
-                    "offset"
-                ]
-            }
-            let asdf: RequestHandler = testObject.queryParameterValidator(schema);
-            let req: any = { query: { randomArg: 229 } };
-            let res: any = {};
-            expect(asdf).to.be.not.null;
-            asdf(req, res, nextSpy);
-            expect(nextSpy.callCount).to.equal(1);
-            expect(nextSpy.getCall(0).args.length).to.equal(1);
-            expect(nextSpy.getCall(0).args[0]).to.be.instanceof(RouteError, "next should have been called with an RouteError");
-            expect(nextSpy.getCall(0).args[0]).has.property("statusCode").equal(401, "should have a statusCode of 401");
-            expect(testStub.callCount).to.equal(2);
+            expect(validateStub.callCount).to.equal(1);
+            expect(validateStub.getCall(0).args.length).to.equal(3);
+            expect(validateStub.getCall(0).args[0]).to.deep.equal(queryData);
+            expect(validateStub.getCall(0).args[1]).to.deep.equal(schema);
+            const callArg3: jsonschema.Options = validateStub.getCall(0).args[2];
+            expect(callArg3.allowUnknownAttributes).to.be.false;
+            expect(callArg3.rewrite).to.equal(testObject.rewriteDefaultValue);
         });
     });
     describe("rewriteDefaultValue", () => {
