@@ -9,3 +9,4 @@ pihole-FTL.db
 
 dist/
 docs/
+.nyc_output/
