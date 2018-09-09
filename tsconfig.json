@@ -3,12 +3,16 @@
         "target": "es6",
         "module": "commonjs",
         "outDir": "dist",
-        "sourceMap": true,
+        "rootDir": "./src",
+        "sourceMap": false,
         "declaration": false
     },
     "typeAcquisition": {
         "enable": true
     },
+    "include": [
+        "src/**/*.ts"
+    ],
     "baseUrl": "./src",
     "exclude": [
         "node_modules"

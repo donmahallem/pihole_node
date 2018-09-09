@@ -1,3 +1,4 @@
+/// <reference path="../extensions.d.ts" />
 import {
     Request,
     Response,
