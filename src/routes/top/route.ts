@@ -1,14 +1,22 @@
 import * as express from "express";
 import { GetTopClientsEndpoint } from "./clients.endpoint";
 import { GetTopDomainsEndpoint } from "./domains.endpoint";
-import { GetTopAdsEndpoint } from "./ads.endpoint";
+import {
+    GetTopAdsEndpoint,
+    topAds
+} from "./ads.endpoint";
+import { queryParameterValidator } from "../../middleware/query-parameter-validator.middleware";
+import * as jsonschema from "jsonschema";
+import { TopQueryParameterSchema } from "../../schemas/offset-query-parameter.schema";
+
 /**
  * The router for the api endpoints
  * @exports apiRouter
  */
 let router = express.Router();
 
-router.get("/domains", GetTopDomainsEndpoint);
-router.get("/clients", GetTopClientsEndpoint);
-router.get("/ads", GetTopAdsEndpoint);
+const subRouter = router.use(queryParameterValidator(TopQueryParameterSchema));
+subRouter.get("/domains", GetTopDomainsEndpoint);
+subRouter.get("/clients", GetTopClientsEndpoint);
+subRouter.get("/ads", topAds);
 export = router;

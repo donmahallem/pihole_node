@@ -11,7 +11,7 @@ import {
 const db: PiholeDatabase = new PiholeDatabase();
 
 
-const topAds: express.RequestHandler = (req: express.Request, res: express.Response, next: express.NextFunction): void => {
+export const topAds: express.RequestHandler = (req: express.Request, res: express.Response, next: express.NextFunction): void => {
     let first: boolean = true;
     res.setHeader("Content-Type", "application/json");
     res.write("{\"data\":[");
