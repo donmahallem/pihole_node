@@ -17,7 +17,7 @@ describe('QueryParamTool', () => {
 
         var mockRequest;
         var mockResponse;
-        var mockNext: sinon.spy;
+        var mockNext: sinon.SinonSpy;
         beforeEach((done) => {
             mockRequest = sinon.mock({});
             mockResponse = sinon.mock({});
@@ -82,7 +82,7 @@ describe('QueryParamTool', () => {
             mockResponse = {};
             asdf(mockRequest, mockResponse, mockNext);
             sinon.assert.calledOnce(mockNext);
-            const call: sinon.Spy = mockNext.getCall(0);
+            const call: sinon.SinonSpyCall = mockNext.getCall(0);
             expect(call.args.length).to.be.equal(1);
             expect(call.args[0] instanceof RouteError).to.be.true;
             expect(call.args[0].statusCode).to.equal(401);
@@ -96,7 +96,7 @@ describe('QueryParamTool', () => {
         var mockHandleNumberQueryParameter;
         var mockHandleStringQueryParameter;
         var mockResponse;
-        var mockNext: sinon.spy;
+        var mockNext: sinon.SinonSpy;
         beforeEach((done) => {
             mockResponse = sinon.mock({});
             mockNext = sinon.spy();
