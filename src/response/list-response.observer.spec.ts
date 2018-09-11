@@ -45,5 +45,23 @@ describe('response/list-response.observer', () => {
             rxjsOf("a", "b")
                 .subscribe(testa);
         });
+
+        it('should create correct list response', (done) => {
+            let req = httpMocks.createRequest({
+                query: {
+                    limit: 25
+                }
+            });
+            let res = httpMocks.createResponse({
+                eventEmitter: require('events').EventEmitter
+            });
+            const testErr = new Error();
+            const testa = testObject.createListResponseObserver(req, res, nextSpy);
+            throwError(testErr)
+                .subscribe(testa);
+            expect(nextSpy.callCount).to.equal(1);
+            expect(res._getData()).to.empty;
+            done();
+        });
     });
 });
