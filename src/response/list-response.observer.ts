@@ -3,14 +3,17 @@ import * as express from "express";
 
 export const createListResponseObserver = (req: express.Request, res: express.Response, next: express.NextFunction): Observer<any> => {
     let firstItemSent = false;
+    const initData = (res: express.Response) => {
+        if (!res.headersSent) {
+            res.setHeader("Content-Type", "application/json");
+        }
+        res.write("{\"data\":[");
+        firstItemSent = true;
+    };
     return {
         next: (value: any) => {
             if (!firstItemSent) {
-                if (!res.headersSent) {
-                    res.setHeader("Content-Type", "application/json");
-                }
-                res.write("{\"data\":[");
-                firstItemSent = true;
+                initData(res);
             } else {
                 res.write(",");
             }
@@ -20,6 +23,9 @@ export const createListResponseObserver = (req: express.Request, res: express.Re
             next(err);
         },
         complete: () => {
+            if (!firstItemSent) {
+                initData(res);
+            }
             res.write("]}");
             res.end();
         }

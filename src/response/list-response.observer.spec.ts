@@ -20,6 +20,7 @@ describe('response/list-response.observer', () => {
             nextSpy = sinon.spy();
         });
         afterEach(() => {
+            nextSpy.resetHistory();
         });
         after(() => {
         })
@@ -62,6 +63,27 @@ describe('response/list-response.observer', () => {
             expect(nextSpy.callCount).to.equal(1);
             expect(res._getData()).to.empty;
             done();
+        });
+        it('should create correct empty list response', (done) => {
+            let req = httpMocks.createRequest({
+                query: {
+                    limit: 25
+                }
+            });
+            let res = httpMocks.createResponse({
+                eventEmitter: require('events').EventEmitter
+            });
+            res.on('end', function () {
+                expect(nextSpy.callCount).to.equal(0, "next spy shouldnt be called");
+                expect(res.statusCode).to.equal(200);
+                let respBody: any = JSON.parse(res._getData());
+                expect(res.header("Content-Type")).to.equal("application/json");
+                expect(respBody).to.deep.equal({ data: [] });
+                done();
+            });
+            const testa = testObject.createListResponseObserver(req, res, nextSpy);
+            rxjsOf()
+                .subscribe(testa);
         });
     });
 });
