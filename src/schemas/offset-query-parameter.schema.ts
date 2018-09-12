@@ -1,4 +1,5 @@
 import { Schema } from "jsonschema";
+import { max } from "rxjs/operators";
 
 
 export const OffsetQueryParameterSchema: Schema = {
@@ -7,26 +8,79 @@ export const OffsetQueryParameterSchema: Schema = {
     "minimum": 0
 }
 
+const positivIntegerSchema: Schema = {
+    "type": "integer",
+    "minimum": 0
+}
+const positivIntegerStringSchema: Schema = {
+    "type": "string",
+    "pattern": "^([0-9]|[1-4][0-9]|50)$"
+}
+
+export const createIntegerRangeSchema = (minimum: number, maximum: number): Schema => {
+    return {
+        "type": "integer",
+        "minimum": minimum,
+        "maximum": maximum
+    }
+}
+
 export const TopQueryParameterSchema: Schema = {
 
     "type": "object",
     "properties": {
         "offset": {
-            "type": "integer",
-            "minimum": 0,
+            "title": "Offset",
+            "description": "Offset for dataset list queries",
+            "anyOf": [
+                {
+                    "type": "integer",
+                    "minimum": 0,
+                },
+                {
+                    "type": "string",
+                    "pattern": "^[0-9]+$"
+                }
+            ]
         },
         "limit": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 50,
+            "title": "Limit",
+            "description": "The maximum number of entries to return",
+            "anyOf": [
+                createIntegerRangeSchema(0, 50),
+                {
+                    "type": "string",
+                    "pattern": "^([0-9]|[1-4][0-9]|50)$"
+                }
+            ]
         },
         "from": {
-            "type": "integer",
-            "minimum": 0
+            "title": "From",
+            "description": "Timestamp mimum to query",
+            "anyOf": [
+                {
+                    "type": "integer",
+                    "minimum": 0,
+                },
+                {
+                    "type": "string",
+                    "pattern": "^[0-9]+$"
+                }
+            ]
         },
         "to": {
-            "type": "integer",
-            "minimum": 0
+            "title": "To",
+            "description": "Timestamp maximum to query",
+            "anyOf": [
+                {
+                    "type": "integer",
+                    "minimum": 0,
+                },
+                {
+                    "type": "string",
+                    "pattern": "^[0-9]+$"
+                }
+            ]
         },
         "domain": {
             "type": "string",
@@ -36,7 +90,7 @@ export const TopQueryParameterSchema: Schema = {
         "client": {
             "type": "string",
             "description": "The client to filter for",
-            "maxLength": 64
+            "maxLength": 64,
         }
     }
 };

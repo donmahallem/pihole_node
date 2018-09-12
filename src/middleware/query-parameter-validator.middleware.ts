@@ -14,6 +14,9 @@ export const rewriteDefaultValue: RewriteFunction = (instance: any, schema: Sche
     if (schema.defaultValue && instance === undefined) {
         return schema.defaultValue;
     } else {
+        if (schema.type === "integer") {
+            return parseInt(instance);
+        }
         return instance;
     }
 };
@@ -35,7 +38,7 @@ export const queryParameterValidator = (param: Schema): express.RequestHandler =
             req.query = result.instance;
             next();
         } else {
-            next(new RouteError(401, result.errors[0].message));
+            next(new RouteError(401, result.errors[0].property + " - " + result.errors[0].message));
         }
     }
 }
