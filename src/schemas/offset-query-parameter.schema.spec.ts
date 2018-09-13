@@ -39,6 +39,12 @@ describe('schemas/offset-query-parameter.schema', () => {
                 expect(result.valid).to.equal(true, createError(result.errors[0]));
                 expect(result.instance).to.deep.equal(testData);
             });
+            it('should pass offset as a large number string', () => {
+                let testData: any = { offset: "20452" };
+                let result: jsonschema.ValidatorResult = jsonschema.validate(testData, testObject.TopQueryParameterSchema);
+                expect(result.valid).to.equal(true, createError(result.errors[0]));
+                expect(result.instance).to.deep.equal(testData);
+            });
 
         });
         describe('limit property', function () {
@@ -56,6 +62,12 @@ describe('schemas/offset-query-parameter.schema', () => {
             });
             it('should not pass limit as a number bigger than 50', () => {
                 let testData: any = { limit: 51 };
+                let result: jsonschema.ValidatorResult = jsonschema.validate(testData, testObject.TopQueryParameterSchema);
+                expect(result.valid).to.equal(false, createError(result.errors[0]));
+                expect(result.instance).to.deep.equal(testData);
+            });
+            it('should not pass limit as a number string bigger than 50', () => {
+                let testData: any = { limit: "51" };
                 let result: jsonschema.ValidatorResult = jsonschema.validate(testData, testObject.TopQueryParameterSchema);
                 expect(result.valid).to.equal(false, createError(result.errors[0]));
                 expect(result.instance).to.deep.equal(testData);
@@ -83,6 +95,38 @@ describe('schemas/offset-query-parameter.schema', () => {
             });
             it('should pass from as a number string', () => {
                 let testData: any = { from: "29" };
+                let result: jsonschema.ValidatorResult = jsonschema.validate(testData, testObject.TopQueryParameterSchema);
+                expect(result.valid).to.equal(true, createError(result.errors[0]));
+                expect(result.instance).to.deep.equal(testData);
+            });
+            it('should pass from as a large number string', () => {
+                let testData: any = { from: "20452" };
+                let result: jsonschema.ValidatorResult = jsonschema.validate(testData, testObject.TopQueryParameterSchema);
+                expect(result.valid).to.equal(true, createError(result.errors[0]));
+                expect(result.instance).to.deep.equal(testData);
+            });
+        });
+        describe('to property', function () {
+            it('should pass to as a number', () => {
+                let testData: any = { to: 29 };
+                let result: jsonschema.ValidatorResult = jsonschema.validate(testData, testObject.TopQueryParameterSchema);
+                expect(result.valid).to.equal(true, createError(result.errors[0]));
+                expect(result.instance).to.deep.equal(testData);
+            });
+            it('should not pass to as a negative number', () => {
+                let testData: any = { to: -1 };
+                let result: jsonschema.ValidatorResult = jsonschema.validate(testData, testObject.TopQueryParameterSchema);
+                expect(result.valid).to.equal(false, createError(result.errors[0]));
+                expect(result.instance).to.deep.equal(testData);
+            });
+            it('should pass to as a number string', () => {
+                let testData: any = { to: "29" };
+                let result: jsonschema.ValidatorResult = jsonschema.validate(testData, testObject.TopQueryParameterSchema);
+                expect(result.valid).to.equal(true, createError(result.errors[0]));
+                expect(result.instance).to.deep.equal(testData);
+            });
+            it('should pass to as a large number string', () => {
+                let testData: any = { to: "20452" };
                 let result: jsonschema.ValidatorResult = jsonschema.validate(testData, testObject.TopQueryParameterSchema);
                 expect(result.valid).to.equal(true, createError(result.errors[0]));
                 expect(result.instance).to.deep.equal(testData);
