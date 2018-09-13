@@ -4,5 +4,4 @@
 --timeout 10000
 --reporter spec
 --check-leaks
---bail
 src/**/*.spec.ts src/**/*.test.tsx
