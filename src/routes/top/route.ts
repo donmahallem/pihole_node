@@ -1,6 +1,6 @@
 import * as express from "express";
 import { createTopClientsEndpoint } from "./clients.endpoint";
-import { GetTopDomainsEndpoint } from "./domains.endpoint";
+import { createTopDomainsEndpoint } from "./domains.endpoint";
 import {
     GetTopAdsEndpoint,
     topAds
@@ -17,7 +17,7 @@ import { PiholeDatabase } from "../../helper/pihole-database";
 let router = express.Router();
 
 const subRouter = router.use(queryParameterValidator(TopQueryParameterSchema));
-//subRouter.get("/domains", GetTopDomainsEndpoint);
+subRouter.get("/domains", createTopDomainsEndpoint(new PiholeDatabase()));
 subRouter.get("/clients", createTopClientsEndpoint(new PiholeDatabase()));
 subRouter.get("/ads", topAds);
 export = router;

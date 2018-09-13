@@ -58,29 +58,55 @@ export class PiholeDatabase {
         this.database = new Database("pihole-FTL.db");
     }
 
-    public getQueries(limit: number = 25): Observable<Query> {
-        return prepareStatement(this.database, "SELECT * FROM queries ORDER BY timestamp DESC LIMIT ?", [limit])
+    public getQueries(limit: number = 25, offset: number = 0, client: string = undefined): Observable<Query> {
+        let paramLimit: number = 25;
+        let paramOffset: number = 0;
+        let paramClient: string = undefined;
+        if (limit && Number.isInteger(limit) && limit >= 0) {
+            paramLimit = limit;
+        }
+        if (offset && Number.isInteger(offset) && offset >= 0) {
+            paramOffset = offset;
+        }
+        if (client) {
+            paramClient = client;
+        }
+        if (paramClient) {
+            return prepareStatement(this.database, "SELECT * FROM queries WHERE client == ? ORDER BY timestamp DESC LIMIT ? OFFSET ?", [client, limit, offset])
+                .pipe(mergeMap((stat: Statement) => {
+                    return statementToList(stat);
+                }));
+        } else {
+            return prepareStatement(this.database, "SELECT * FROM queries ORDER BY timestamp DESC LIMIT ? OFFSET ?", [limit, offset])
+                .pipe(mergeMap((stat: Statement) => {
+                    return statementToList(stat);
+                }));
+        }
+    }
+
+    public getTopClients(limit: number = 25, offset: number = 0) {
+        return prepareStatement(this.database, "SELECT client, count(client) as num FROM queries GROUP by client order by count(client) desc limit ? OFFSET ?", [limit, offset])
             .pipe(mergeMap((stat: Statement) => {
                 return statementToList(stat);
             }));
-    }
-
-    public getTopClients(limit: number = 25) {
-        return prepareStatement(this.database, "SELECT client, count(client) as num FROM queries GROUP by client order by count(client) desc limit ?", [limit])
-            .pipe(mergeMap((stat: Statement) => {
-                return statementToList(stat);
-            }));
 
     }
-    public getTopDomains(limit: number = 25): Observable<any> {
-        return prepareStatement(this.database, "SELECT domain,count(domain) as num FROM queries GROUP by domain order by count(domain) desc limit ?", [limit])
-            .pipe(mergeMap((stat: Statement) => {
-                return statementToList(stat);
-            }));
+    public getTopDomains(limit: number = 25, offset: number = 0, client?: string): Observable<any> {
+        if (client) {
+            return prepareStatement(this.database, "SELECT domain,count(domain) as num FROM queries WHERE (client == ?) GROUP by domain order by count(domain) desc limit ? OFFSET ?", [client, limit, offset])
+                .pipe(mergeMap((stat: Statement) => {
+                    return statementToList(stat);
+                }));
+        } else {
+            return prepareStatement(this.database, "SELECT domain,count(domain) as num FROM queries GROUP by domain order by count(domain) desc limit ? OFFSET ?", [limit, offset])
+                .pipe(mergeMap((stat: Statement) => {
+                    return statementToList(stat);
+                }));
+        }
 
     }
-    public getTopAds(limit: number = 25): Observable<any> {
-        return prepareStatement(this.database, "SELECT domain,count(domain) as num FROM queries WHERE (STATUS == 1 OR STATUS == 4) GROUP by domain order by count(domain) desc limit ?", [limit])
+    public getTopAds(limit: number = 25, offset: number = 0): Observable<any> {
+        return prepareStatement(this.database, "SELECT domain,count(domain) as num FROM queries WHERE (STATUS == 1 OR STATUS == 4) GROUP by domain order by count(domain) desc limit ? OFFSET ?", [limit, offset])
             .pipe(mergeMap((stat: Statement) => {
                 return statementToList(stat);
             }));
