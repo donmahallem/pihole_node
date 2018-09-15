@@ -1,3 +1,3 @@
-export class QueryTypes {
+export interface QueryTypes {
     [type: string]: number;
 }

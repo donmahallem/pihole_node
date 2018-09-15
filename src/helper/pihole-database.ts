@@ -58,10 +58,9 @@ export class PiholeDatabase {
         this.database = new Database("pihole-FTL.db");
     }
 
-    public getQueries(limit: number = 25, offset: number = 0, client: string = undefined): Observable<Query> {
+    public getQueries(limit: number = 25, offset: number = 0, client?: string): Observable<Query> {
         let paramLimit: number = 25;
         let paramOffset: number = 0;
-        let paramClient: string = undefined;
         if (limit && Number.isInteger(limit) && limit >= 0) {
             paramLimit = limit;
         }
@@ -69,9 +68,6 @@ export class PiholeDatabase {
             paramOffset = offset;
         }
         if (client) {
-            paramClient = client;
-        }
-        if (paramClient) {
             return prepareStatement(this.database, "SELECT * FROM queries WHERE client == ? ORDER BY timestamp DESC LIMIT ? OFFSET ?", [client, limit, offset])
                 .pipe(mergeMap((stat: Statement) => {
                     return statementToList(stat);

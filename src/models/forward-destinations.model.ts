@@ -1,3 +1,3 @@
-export class ForwardDestinations {
+export interface ForwardDestinations {
     [destinaion: string]: number;
 }

@@ -26,7 +26,7 @@ export class PiholeApp {
         this.app.use(bodyParser.json());
         this.app.use("/static", serveStatic(__dirname + "/static"));
         this.app.use("/api", apiRoute);
-        this.app.use(function (err, req, res, next) {
+        this.app.use(function (err: any, req: express.Request, res: express.Response, next: express.NextFunction) {
             console.log("Request errored", err);
         });
     }

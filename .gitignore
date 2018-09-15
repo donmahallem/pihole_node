@@ -10,3 +10,5 @@ pihole-FTL.db
 dist/
 docs/
 .nyc_output/
+user.db
+users.db

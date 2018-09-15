@@ -1,12 +1,17 @@
-import { Database, Statement } from 'sqlite3';
-import { Observable, Observer, of, merge } from "rxjs";
+import * as sqlite from 'sqlite3';
+import {
+    Observable,
+    Observer,
+    merge,
+    throwError
+} from "rxjs";
 import {
     mergeMap,
-    observeOn,
-    subscribeOn,
-    map
+    catchError
 } from "rxjs/operators";
 import * as bcrypt from "bcrypt";
+import { RouteError } from '../routes';
+import { DatabaseUtil } from "./database-util";
 
 export interface Query {
     //autoincrement ID for the table, only used by SQLite3, not by FTLDNS
@@ -25,106 +30,61 @@ export interface Query {
     forward?: string | undefined;
 }
 
-function prepareStatement(db: Database, statement: string, params?: any) {
-    return Observable.create((pub: Observer<Statement>) => {
-        db.serialize(() => {
-            const stat: Statement = db.prepare(statement, params);
-            pub.next(stat);
-            pub.complete();
-        });
-    });
+export interface DbUser {
+    username?: string,
+    password?: string
 }
-function statementToList(stat: Statement): Observable<any> {
-    return Observable.create((pub: Observer<any>) => {
-        stat.each((err: Error, row: any) => {
-            if (err) {
-            } else {
-                pub.next(row);
-            }
-        }, (err: Error, count: number) => {
-            if (err) {
-                pub.error(err);
-            } else {
-                pub.complete();
-            }
-            stat.finalize();
-        });
-    });
-}
-
-
-
 
 export class UserDatabase {
 
-    private database: Database;
+    private database: sqlite.Database;
     constructor() {
-        this.database = new Database("user.db");
+        this.database = new sqlite.Database("users.db");
+        this.database.exec("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + "username TEXT UNIQUE," +
+            "password TEXT," +
+            "padmin INTEGER)", (err) => {
+                console.error(err);
+            });
     }
 
     public createHashedPassword(password: string, saltOrRounds: string | number = 12): Observable<string> {
         return merge(bcrypt.hash(password, saltOrRounds));
     }
 
-    public setPassword(user: string, password: string): Observable<string> {
-        return merge(bcrypt.hash(password, 12))
-            .pipe(map((val) => {
-                return val;
+    public setPassword(user: string, password: string): Observable<sqlite.Statement> {
+        return this.createHashedPassword(password)
+            .pipe(mergeMap((hash: string) => {
+                const sqlStatement: string = "INSERT INTO users (username,password) VALUES(?,?) ON CONFLICT(username) DO UPDATE SET password=?;";
+                return DatabaseUtil.prepareStatement(this.database, sqlStatement, [user, password, password]);
             }));
     }
 
-    public getQueries(limit: number = 25, offset: number = 0, client: string = undefined): Observable<Query> {
-        let paramLimit: number = 25;
-        let paramOffset: number = 0;
-        let paramClient: string = undefined;
-        if (limit && Number.isInteger(limit) && limit >= 0) {
-            paramLimit = limit;
-        }
-        if (offset && Number.isInteger(offset) && offset >= 0) {
-            paramOffset = offset;
-        }
-        if (client) {
-            paramClient = client;
-        }
-        if (paramClient) {
-            return prepareStatement(this.database, "SELECT * FROM queries WHERE client == ? ORDER BY timestamp DESC LIMIT ? OFFSET ?", [client, limit, offset])
-                .pipe(mergeMap((stat: Statement) => {
-                    return statementToList(stat);
-                }));
-        } else {
-            return prepareStatement(this.database, "SELECT * FROM queries ORDER BY timestamp DESC LIMIT ? OFFSET ?", [limit, offset])
-                .pipe(mergeMap((stat: Statement) => {
-                    return statementToList(stat);
-                }));
-        }
-    }
-
-    public getTopClients(limit: number = 25, offset: number = 0) {
-        return prepareStatement(this.database, "SELECT client, count(client) as num FROM queries GROUP by client order by count(client) desc limit ? OFFSET ?", [limit, offset])
-            .pipe(mergeMap((stat: Statement) => {
-                return statementToList(stat);
+    public getUsers(): Observable<DbUser> {
+        const sqlStatement: string = "SELECT * FROM users;";
+        return DatabaseUtil.prepareStatement(this.database, sqlStatement)
+            .pipe(mergeMap((stat: sqlite.Statement) => {
+                console.log(stat);
+                return DatabaseUtil.statementToList(stat);
             }));
-
     }
-    public getTopDomains(limit: number = 25, offset: number = 0, client?: string): Observable<any> {
-        if (client) {
-            return prepareStatement(this.database, "SELECT domain,count(domain) as num FROM queries WHERE (client == ?) GROUP by domain order by count(domain) desc limit ? OFFSET ?", [client, limit, offset])
-                .pipe(mergeMap((stat: Statement) => {
-                    return statementToList(stat);
-                }));
-        } else {
-            return prepareStatement(this.database, "SELECT domain,count(domain) as num FROM queries GROUP by domain order by count(domain) desc limit ? OFFSET ?", [limit, offset])
-                .pipe(mergeMap((stat: Statement) => {
-                    return statementToList(stat);
-                }));
-        }
 
-    }
-    public getTopAds(limit: number = 25, offset: number = 0): Observable<any> {
-        return prepareStatement(this.database, "SELECT domain,count(domain) as num FROM queries WHERE (STATUS == 1 OR STATUS == 4) GROUP by domain order by count(domain) desc limit ? OFFSET ?", [limit, offset])
-            .pipe(mergeMap((stat: Statement) => {
-                return statementToList(stat);
+
+    public createUser(username: string, password: string): Observable<DbUser> {
+        const sqlStatement: string = "INSERT INTO users (username,password) VALUES(?,?);";
+        return this.createHashedPassword(password)
+            .pipe(mergeMap((hash: string): Observable<sqlite.Statement> => {
+                return DatabaseUtil.prepareStatement(this.database, sqlStatement, [username, hash]);
+            }), mergeMap((stat: sqlite.Statement): Observable<any> => {
+                return DatabaseUtil.runStatement(stat);
+            }), catchError((error: Error) => {
+                if (error.message && error.message.startsWith("SQLITE_CONSTRAINT")) {
+                    if (error.message.indexOf(".username")) {
+                        return throwError(new RouteError(401, "Username already exists"));
+                    }
+                }
+                return throwError(error);
             }));
-
     }
+
 }

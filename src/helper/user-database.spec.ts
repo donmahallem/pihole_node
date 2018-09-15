@@ -24,7 +24,7 @@ describe('src/helper/user-database', () => {
         afterEach(() => {
             mockBcrypt.restore();
         });
-        it('should pass without query arguments', (done) => {
+        it('should pass and encrypt password with default parameter', (done) => {
             mockBcrypt.returns(new Promise<string>((resolve, reject) => {
                 resolve("success");
             }));
@@ -41,7 +41,24 @@ describe('src/helper/user-database', () => {
             asdf.createHashedPassword("asdfaf")
                 .subscribe(resultSpy, testResult, testResult);
         });
-        it('should fail pass without query arguments', (done) => {
+        it('should pass and encrypt password with extra parameter', (done) => {
+            mockBcrypt.returns(new Promise<string>((resolve, reject) => {
+                resolve("success");
+            }));
+            let asdf: testObject.UserDatabase = new testObject.UserDatabase();
+            let resultSpy: sinon.SinonSpy = sinon.spy();
+            let testResult = (err?: Error) => {
+                expect(err).to.not.exist;
+                expect(mockBcrypt.callCount).to.equal(1);
+                expect(mockBcrypt.getCall(0).args).to.deep.equal(["asdfaf", 24]);
+                expect(resultSpy.callCount).to.equal(1);
+                expect(resultSpy.getCall(0).args).to.deep.equal(["success"]);
+                done();
+            };
+            asdf.createHashedPassword("asdfaf", 24)
+                .subscribe(resultSpy, testResult, testResult);
+        });
+        it('should create a hashed password', (done) => {
             mockBcrypt.returns(new Promise<string>((resolve, reject) => {
                 reject(new Error("random problem"));
             }));
