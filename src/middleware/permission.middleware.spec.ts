@@ -40,7 +40,8 @@ describe('src/middleware/permission.middleware', () => {
             let res: any = {};
             expect(asdf).to.be.not.null;
             asdf(req, res, <any>nextSpy);
-            expect(req.user).to.not.exist;
+            expect(req.user).to.exist;
+            expect(req.user).to.deep.equal({ "authorized": false });
             expect(nextSpy.callCount).to.equal(1);
             expect(nextSpy.getCall(0).args.length).to.equal(0);
         });
