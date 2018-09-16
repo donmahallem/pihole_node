@@ -3,7 +3,7 @@
 import * as express from "express";
 import { Api } from "./api";
 import * as TopRoutes from "./top/route";
-import * as UserRoutes from "./user/route";
+import { UserRouter } from "./user/route";
 
 /**
  * @apiDefine NotAuthorized
@@ -245,7 +245,7 @@ router.get("/data/overtimeData", Api.getOvertimeData);
 
 router.use("/top", TopRoutes);
 
-router.use("/user", UserRoutes);
+router.use("/user", UserRouter);
 
 router.use(Api.catchError);
 

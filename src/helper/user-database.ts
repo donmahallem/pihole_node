@@ -10,7 +10,7 @@ import {
     catchError
 } from "rxjs/operators";
 import * as bcrypt from "bcrypt";
-import { RouteError } from '../routes';
+import { RouteError } from '../routes/route-error';
 import { DatabaseUtil } from "./database-util";
 
 export interface Query {
@@ -40,8 +40,8 @@ export class UserDatabase {
     private database: sqlite.Database;
     constructor() {
         this.database = new sqlite.Database("users.db");
-        this.database.exec("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT,"
-            + "username TEXT UNIQUE," +
+        this.database.exec("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT," +
+            "username TEXT UNIQUE," +
             "password TEXT," +
             "padmin INTEGER)", (err) => {
                 console.error(err);
