@@ -3,7 +3,7 @@ import * as http from "http";
 import * as bodyParser from "body-parser";
 import * as serveStatic from "serve-static";
 import * as cookieParser from "cookie-parser";
-import { apiRoute } from "./routes";
+import * as apiRoute from "./routes/api.route";
 
 
 /**
