@@ -28,7 +28,6 @@ describe('routes/top/route', () => {
 
             queryParameterValidatorStub = sinon.stub(queryParameterValidatorMiddleware, "queryParameterValidator")
                 .returns((req, res, next) => {
-                    console.log("a");
                     next();
                 });
             app = express();

@@ -101,11 +101,17 @@ export class PiholeDatabase {
         }
 
     }
-    public getTopAds(limit: number = 25, offset: number = 0): Observable<any> {
-        return prepareStatement(this.database, "SELECT domain,count(domain) as num FROM queries WHERE (STATUS == 1 OR STATUS == 4) GROUP by domain order by count(domain) desc limit ? OFFSET ?", [limit, offset])
-            .pipe(mergeMap((stat: Statement) => {
-                return statementToList(stat);
-            }));
-
+    public getTopAds(limit: number = 25, offset: number = 0, client?: string): Observable<any> {
+        if (client) {
+            return prepareStatement(this.database, "SELECT domain,count(domain) as num FROM queries WHERE ((STATUS == 1 OR STATUS == 4) AND client == ?) GROUP by domain order by count(domain) desc limit ? OFFSET ?", [client, limit, offset])
+                .pipe(mergeMap((stat: Statement) => {
+                    return statementToList(stat);
+                }));
+        } else {
+            return prepareStatement(this.database, "SELECT domain,count(domain) as num FROM queries WHERE (STATUS == 1 OR STATUS == 4) GROUP by domain order by count(domain) desc limit ? OFFSET ?", [limit, offset])
+                .pipe(mergeMap((stat: Statement) => {
+                    return statementToList(stat);
+                }));
+        }
     }
 }
