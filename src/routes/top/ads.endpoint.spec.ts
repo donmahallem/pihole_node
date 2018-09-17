@@ -14,8 +14,8 @@ import * as testObject from "./ads.endpoint";
 import * as httpMocks from "node-mocks-http";
 import { PiholeDatabase } from "../../helper/pihole-database";
 import { of as rxjsOf } from "rxjs";
-describe('routes/top/clients.endpoint', () => {
-    describe('GET /top', function () {
+describe('routes/top/ads.endpoint', () => {
+    describe('createTopAdsEndpoint', function () {
         var nextSpy: sinon.SinonSpy;
         var databaseStubbedInstance: sinon.SinonStubbedInstance<PiholeDatabase>;
         before(function () {
