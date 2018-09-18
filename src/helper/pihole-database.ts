@@ -1,4 +1,4 @@
-import { Database, Statement } from 'sqlite3';
+import * as sqlite from 'sqlite3';
 import { Observable, Observer } from "rxjs";
 import {
     mergeMap,
@@ -24,16 +24,16 @@ export interface Query {
     forward?: string | undefined;
 }
 
-function prepareStatement(db: Database, statement: string, params?: any) {
-    return Observable.create((pub: Observer<Statement>) => {
+function prepareStatement(db: sqlite.Database, statement: string, params?: any) {
+    return Observable.create((pub: Observer<sqlite.Statement>) => {
         db.serialize(() => {
-            const stat: Statement = db.prepare(statement, params);
+            const stat: sqlite.Statement = db.prepare(statement, params);
             pub.next(stat);
             pub.complete();
         });
     });
 }
-function statementToList(stat: Statement): Observable<any> {
+function statementToList(stat: sqlite.Statement): Observable<any> {
     return Observable.create((pub: Observer<any>) => {
         stat.each((err: Error, row: any) => {
             if (err) {
@@ -53,9 +53,19 @@ function statementToList(stat: Statement): Observable<any> {
 
 export class PiholeDatabase {
 
-    private database: Database;
-    constructor() {
-        this.database = new Database("pihole-FTL.db");
+    private database: sqlite.Database;
+    private static mInstance: PiholeDatabase;
+    private constructor() {
+        this.database = sqlite.cached.Database("pihole-FTL.db");
+    }
+
+    public static getInstance(): PiholeDatabase {
+        if (this.mInstance) {
+            return this.mInstance;
+        } else {
+            this.mInstance = new PiholeDatabase();
+            return this.mInstance;
+        }
     }
 
     public getQueries(limit: number = 25, offset: number = 0, client?: string): Observable<Query> {
@@ -69,12 +79,12 @@ export class PiholeDatabase {
         }
         if (client) {
             return prepareStatement(this.database, "SELECT * FROM queries WHERE client == ? ORDER BY timestamp DESC LIMIT ? OFFSET ?", [client, limit, offset])
-                .pipe(mergeMap((stat: Statement) => {
+                .pipe(mergeMap((stat: sqlite.Statement) => {
                     return statementToList(stat);
                 }));
         } else {
             return prepareStatement(this.database, "SELECT * FROM queries ORDER BY timestamp DESC LIMIT ? OFFSET ?", [limit, offset])
-                .pipe(mergeMap((stat: Statement) => {
+                .pipe(mergeMap((stat: sqlite.Statement) => {
                     return statementToList(stat);
                 }));
         }
@@ -82,7 +92,7 @@ export class PiholeDatabase {
 
     public getTopClients(limit: number = 25, offset: number = 0) {
         return prepareStatement(this.database, "SELECT client, count(client) as num FROM queries GROUP by client order by count(client) desc limit ? OFFSET ?", [limit, offset])
-            .pipe(mergeMap((stat: Statement) => {
+            .pipe(mergeMap((stat: sqlite.Statement) => {
                 return statementToList(stat);
             }));
 
@@ -90,12 +100,12 @@ export class PiholeDatabase {
     public getTopDomains(limit: number = 25, offset: number = 0, client?: string): Observable<any> {
         if (client) {
             return prepareStatement(this.database, "SELECT domain,count(domain) as num FROM queries WHERE (client == ?) GROUP by domain order by count(domain) desc limit ? OFFSET ?", [client, limit, offset])
-                .pipe(mergeMap((stat: Statement) => {
+                .pipe(mergeMap((stat: sqlite.Statement) => {
                     return statementToList(stat);
                 }));
         } else {
             return prepareStatement(this.database, "SELECT domain,count(domain) as num FROM queries GROUP by domain order by count(domain) desc limit ? OFFSET ?", [limit, offset])
-                .pipe(mergeMap((stat: Statement) => {
+                .pipe(mergeMap((stat: sqlite.Statement) => {
                     return statementToList(stat);
                 }));
         }
@@ -104,12 +114,12 @@ export class PiholeDatabase {
     public getTopAds(limit: number = 25, offset: number = 0, client?: string): Observable<any> {
         if (client) {
             return prepareStatement(this.database, "SELECT domain,count(domain) as num FROM queries WHERE ((STATUS == 1 OR STATUS == 4) AND client == ?) GROUP by domain order by count(domain) desc limit ? OFFSET ?", [client, limit, offset])
-                .pipe(mergeMap((stat: Statement) => {
+                .pipe(mergeMap((stat: sqlite.Statement) => {
                     return statementToList(stat);
                 }));
         } else {
             return prepareStatement(this.database, "SELECT domain,count(domain) as num FROM queries WHERE (STATUS == 1 OR STATUS == 4) GROUP by domain order by count(domain) desc limit ? OFFSET ?", [limit, offset])
-                .pipe(mergeMap((stat: Statement) => {
+                .pipe(mergeMap((stat: sqlite.Statement) => {
                     return statementToList(stat);
                 }));
         }

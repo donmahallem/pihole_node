@@ -13,12 +13,14 @@ import { PiholeDatabase } from "../../helper/pihole-database";
  * The router for the api endpoints
  * @exports apiRouter
  */
-let router = express.Router();
+export const createTopRouter = (): express.Router => {
+    let router = express.Router();
 
-const db: PiholeDatabase = new PiholeDatabase();
+    const db: PiholeDatabase = PiholeDatabase.getInstance();
 
-const subRouter = router.use(queryParameterValidator(TopQueryParameterSchema));
-subRouter.get("/domains", createTopDomainsEndpoint(db));
-subRouter.get("/clients", createTopClientsEndpoint(db));
-subRouter.get("/ads", createTopAdsEndpoint(db));
-export = router;
+    const subRouter = router.use(queryParameterValidator(TopQueryParameterSchema));
+    subRouter.get("/domains", createTopDomainsEndpoint(db));
+    subRouter.get("/clients", createTopClientsEndpoint(db));
+    subRouter.get("/ads", createTopAdsEndpoint(db));
+    return router;
+}

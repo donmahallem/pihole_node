@@ -4,6 +4,7 @@ import * as express from "express";
 import { Api } from "./api";
 import * as TopRoutes from "./top/route";
 import { UserRouter } from "./user/route";
+import * as HistoryRoutes from "./history/route";
 
 /**
  * @apiDefine NotAuthorized
@@ -243,9 +244,11 @@ router.get("/history", Api.getHistory);
  */
 router.get("/data/overtimeData", Api.getOvertimeData);
 
-router.use("/top", TopRoutes);
+router.use("/top", TopRoutes.createTopRouter());
 
 router.use("/user", UserRouter);
+
+router.use("/history", HistoryRoutes);
 
 router.use(Api.catchError);
 
