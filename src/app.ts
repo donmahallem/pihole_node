@@ -3,7 +3,7 @@ import * as http from "http";
 import * as bodyParser from "body-parser";
 import * as serveStatic from "serve-static";
 import * as cookieParser from "cookie-parser";
-import { apiRoute } from "./routes";
+import * as apiRoute from "./routes/api.route";
 
 
 /**
@@ -26,7 +26,7 @@ export class PiholeApp {
         this.app.use(bodyParser.json());
         this.app.use("/static", serveStatic(__dirname + "/static"));
         this.app.use("/api", apiRoute);
-        this.app.use(function (err, req, res, next) {
+        this.app.use(function (err: any, req: express.Request, res: express.Response, next: express.NextFunction) {
             console.log("Request errored", err);
         });
     }

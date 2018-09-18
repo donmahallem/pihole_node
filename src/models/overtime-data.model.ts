@@ -1,4 +1,4 @@
-export class OvertimeData {
-    ads: { [time: number]: number } = {};
-    queries: { [time: number]: number } = {};
+export interface OvertimeData {
+    ads: { [time: number]: number };
+    queries: { [time: number]: number };
 }

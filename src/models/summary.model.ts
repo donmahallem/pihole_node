@@ -1,4 +1,4 @@
-export class Summary {
-    public adsBlockedToday: number;
-    public dnsQueriesToday: number;
+export interface Summary {
+    adsBlockedToday: number;
+    dnsQueriesToday: number;
 }

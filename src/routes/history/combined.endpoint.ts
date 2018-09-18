@@ -5,7 +5,7 @@ import { ParseLimitQueryParameter } from "../../helper/query-param-tools";
 import { createListResponseObserver } from "../../response/list-response.observer";
 
 
-export const createTopAdsEndpoint = (database: PiholeDatabase): express.RequestHandler => {
+export const createCombindedEndpoint = (database: PiholeDatabase): express.RequestHandler => {
     return (req: express.Request, res: express.Response, next: express.NextFunction): void => {
         let queryLimit: number = 25;
         let queryOffset: number = 0;

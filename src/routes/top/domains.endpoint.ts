@@ -5,33 +5,55 @@ import {
     ParseLimitQueryParameter,
     ParseFromToQueryParameter
 } from "../../helper/query-param-tools";
+import { createListResponseObserver } from "../../response/list-response.observer";
 
-const db: PiholeDatabase = new PiholeDatabase();
-
-const topDomains: express.RequestHandler = (req: express.Request, res: express.Response, next: express.NextFunction): void => {
-    let first: boolean = true;
-    res.setHeader("Content-Type", "application/json");
-    res.write("{\"data\":[");
-    db.getTopDomains(req.query.limit)
-        .subscribe((val) => {
-            if (first) {
-                first = false;
-            } else {
-                res.write(",");
-            }
-            res.write(JSON.stringify(val));
-        }, (err: Error): void => {
-            res.end(err);
-        }, (): void => {
-            res.write("]}");
-            res.end();
-        })
-};
-
-export const GetTopDomainsEndpoint: express.RequestHandler[] = [ParseLimitQueryParameter(25, 0, 100),
-ParseFromToQueryParameter(),
-    topDomains];
-
+/**
+ * @api {get} /api/data Get topItems
+ * @apiName GetDataTopItems
+ * @apiGroup Data
+ * @apiVersion 1.0.0
+ * @apiPermission admin
+ * @apiParam (Query Parameter) {Boolean=true} topItems Gets the queries over time in 10 minute frames
+ *
+ * @apiSuccess {Object} topItems Array with query data
+ * @apiSuccess {Object} overTimeData.topQueries number of ads in that timeframe
+ * @apiSuccess {Object} overTimeData.topAds number of queries in that timeframe
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "topItems":{
+ *         "topQueries":{
+ *           "good.domain1":29,
+ *           "good.domain2":39,
+ *         },
+ *         "topAds":{
+ *           "baddomain1":29,
+ *           "baddomain2":39,
+ *         }
+ *       }
+ *     }
+ * @apiUse InvalidRequest
+ * @apiUse NotAuthorized
+ */
+export const createTopDomainsEndpoint = (database: PiholeDatabase): express.RequestHandler => {
+    return (req: express.Request, res: express.Response, next: express.NextFunction): void => {
+        let queryLimit: number = 25;
+        let queryOffset: number = 0;
+        if (req.query.limit) {
+            queryLimit = parseInt(req.query.limit);
+        }
+        if (req.query.offset) {
+            queryOffset = parseInt(req.query.offset);
+        }
+        if (req.query.client) {
+            database.getTopDomains(queryLimit, queryOffset, req.query.client)
+                .subscribe(createListResponseObserver(req, res, next));
+        } else {
+            database.getTopDomains(queryLimit, queryOffset)
+                .subscribe(createListResponseObserver(req, res, next));
+        }
+    };
+}
 
 /*
 router
