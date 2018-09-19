@@ -111,6 +111,7 @@ export class PiholeDatabase {
         }
 
     }
+
     public getTopAds(limit: number = 25, offset: number = 0, client?: string): Observable<any> {
         if (client) {
             return prepareStatement(this.database, "SELECT domain,count(domain) as num FROM queries WHERE ((STATUS == 1 OR STATUS == 4) AND client == ?) GROUP by domain order by count(domain) desc limit ? OFFSET ?", [client, limit, offset])
@@ -123,5 +124,22 @@ export class PiholeDatabase {
                     return statementToList(stat);
                 }));
         }
+    }
+
+    public getAdsHistory(): Observable<any> {
+        let query: string = "SELECT (timestamp / 60 * 60) AS key, COUNT(timestamp) as count FROM queries WHERE (STATUS == 1 OR STATUS == 4) GROUP BY key ORDER BY key ASC";
+        return prepareStatement(this.database, query)
+            .pipe(mergeMap((stat: sqlite.Statement) => {
+                return statementToList(stat);
+            }));
+    }
+
+    public getCombinedHistory(): Observable<any> {
+        let innerQuery: string = "SELECT (timestamp / 60 * 60) AS key, (STATUS == 1 OR STATUS == 4) as isAd FROM queries ORDER BY key ASC";
+        let query: string = "SELECT key, SUM(isAd) AS ads,COUNT(isAd) AS total  FROM (" + innerQuery + ") GROUP BY key ORDER BY key ASC";
+        return prepareStatement(this.database, query)
+            .pipe(mergeMap((stat: sqlite.Statement) => {
+                return statementToList(stat);
+            }));
     }
 }
