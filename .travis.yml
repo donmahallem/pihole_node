@@ -1,4 +1,7 @@
 language: node_js
+env:
+  global:
+    - secure: ph3rFXr+vurWD+6R4InXq5WU93gVu7w9FHJlCnfAPH0S1nVdcPl/DiCO8Q5Q9WwOXWcTC0mZ2Yhdjpqyw/RhhJ37uAgpQHVjRXYvU/I++W1AG6QGrbmFEsZ4VjoigRzYCnwXS3XBZ5WmDc1ImIOmsXrkFyUuXm/GL5N5ukV2r1G5+XPlMOowReJzhtnsi/nQj1r2cTVBJ073bzolqoASALoDeX7mcF038RdEyJ42NB6Xk/XtxWeuFH6k2XX66WPOzB5TaOdXFOQPd1VMvprPFuHj3USY30CpUIiikHVSgnZoVLML8uLX6kgpJa/bLQhuQbKzynL3inkbSNyRLBOWXWlRuD9zbS5jwbGFMQ1eDcMUZ/npbRJHkg5icHXfvJSJOn1VXPkC2Fv3pd9JqiElbtO9sZdxm0TJhpZXltF3z54kdNUaGplNPdcTZtLmuJmuOcPUo87vsNfXXlYEfbsAdSn+JRHyJXDNj16f3vkgyhqBlVMAvU56y5teaIA9k50R35e7J+iYBEwBvBuRgzd7Ssf6JMPDU7ni4EGVnVXMEaWCWTDzKLzndPHr9BCflLzSWlkMt82JFSL6yf+05Yx7Oary9/foSIR2OhfuTrgStcsZi+0nfsaBvgCcVyyjYqYSQOQjmDIY8Nsmjq/03qGh+dfyh21pwAFH1uSrXSLaBh0=
 node_js:
   - "10"
   - "9"
@@ -9,5 +12,11 @@ node_js:
 before_script:
   - npm install
   - npm install --
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
 script: "npm run-script test-ci"
-after_script: "npm install coveralls && cat ./coverage/lcov.info | coveralls"
+after_success:
+  - "npm install coveralls && cat ./coverage/lcov.info | coveralls"
+after_script:
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
