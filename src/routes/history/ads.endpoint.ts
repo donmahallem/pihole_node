@@ -8,7 +8,7 @@ import { createListResponseObserver } from "../../response/list-response.observe
 export const createAdsEndpoint = (database: PiholeDatabase): express.RequestHandler => {
     return (req: express.Request, res: express.Response, next: express.NextFunction): void => {
         if (req.query !== undefined) {
-            database.getAdsHistory(req.query.from, req.query.to)
+            database.getAdsHistory(req.query.from, req.query.to, req.query.client)
                 .subscribe(createListResponseObserver(req, res, next));
         } else {
             database.getAdsHistory()

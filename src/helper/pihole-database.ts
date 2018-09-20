@@ -25,7 +25,6 @@ export interface Query {
 }
 
 function prepareStatement(db: sqlite.Database, statement: string, params?: any) {
-    console.log("SQL QUERY", statement, params);
     return Observable.create((pub: Observer<sqlite.Statement>) => {
         db.serialize(() => {
             const stat: sqlite.Statement = db.prepare(statement, params);
@@ -127,8 +126,7 @@ export class PiholeDatabase {
         }
     }
 
-    public getAdsHistory(from?: number, to?: number): Observable<any> {
-        console.log("JJJ", from, to);
+    public getAdsHistory(from?: number, to?: number, client?: string): Observable<any> {
         let query: string = "SELECT (timestamp / 60 * 60) AS key, COUNT(timestamp) as count FROM queries WHERE (STATUS == 1 OR STATUS == 4)";
         let queryParams: any[] = [];
         if (from !== undefined) {
@@ -139,6 +137,10 @@ export class PiholeDatabase {
             query += " AND timestamp <= ?";
             queryParams.push(to);
         }
+        if (client !== undefined) {
+            query += " AND client == ?";
+            queryParams.push(client);
+        }
         query += " GROUP BY key ORDER BY key ASC";
         return prepareStatement(this.database, query, queryParams)
             .pipe(mergeMap((stat: sqlite.Statement) => {
@@ -146,7 +148,7 @@ export class PiholeDatabase {
             }));
     }
 
-    public getCombinedHistory(from?: number, to?: number): Observable<any> {
+    public getCombinedHistory(from?: number, to?: number, client?: string): Observable<any> {
         let innerQuery: string = "SELECT (timestamp / 60 * 60) AS key, (STATUS == 1 OR STATUS == 4) as isAd FROM queries";
         let queryParams: any[] = [];
         if (from !== undefined) {
@@ -156,6 +158,10 @@ export class PiholeDatabase {
         if (to !== undefined) {
             innerQuery += " AND timestamp <= ?";
             queryParams.push(to);
+        }
+        if (client !== undefined) {
+            innerQuery += " AND client == ?";
+            queryParams.push(client);
         }
         innerQuery += " ORDER BY key ASC";
         let query: string = "SELECT key, SUM(isAd) AS ads,COUNT(isAd) AS total  FROM (" + innerQuery + ") GROUP BY key ORDER BY key ASC";

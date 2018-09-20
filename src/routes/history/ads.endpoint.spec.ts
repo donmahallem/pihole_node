@@ -47,7 +47,7 @@ describe('routes/history/ads.endpoint', () => {
                 expect(respBody).to.deep.equal({ data: [{ "test": "object" }] });
                 expect(databaseStubbedInstance.getAdsHistory.callCount).to.equal(1);
                 let call = databaseStubbedInstance.getAdsHistory.getCall(0);
-                expect(call.args).to.deep.equal([undefined, undefined]);
+                expect(call.args).to.deep.equal([undefined, undefined, undefined]);
                 done();
             });
             const testa = testObject.createAdsEndpoint(<any>databaseStubbedInstance);
@@ -72,7 +72,7 @@ describe('routes/history/ads.endpoint', () => {
                 expect(respBody).to.deep.equal({ data: [{ "test": "object" }] });
                 expect(databaseStubbedInstance.getAdsHistory.callCount).to.equal(1);
                 let call = databaseStubbedInstance.getAdsHistory.getCall(0);
-                expect(call.args).to.deep.equal([29, 299]);
+                expect(call.args).to.deep.equal([29, 299, undefined]);
                 done();
             });
             const testa = testObject.createAdsEndpoint(<any>databaseStubbedInstance);
@@ -97,7 +97,7 @@ describe('routes/history/ads.endpoint', () => {
                 expect(respBody).to.deep.equal({ data: [{ "test": "object" }] });
                 expect(databaseStubbedInstance.getAdsHistory.callCount).to.equal(1, "getTopAds should just be called once");
                 let call = databaseStubbedInstance.getAdsHistory.getCall(0);
-                expect(call.args).to.deep.equal([2993, undefined]);
+                expect(call.args).to.deep.equal([2993, undefined, undefined]);
                 done();
             });
             const testa = testObject.createAdsEndpoint(<any>databaseStubbedInstance);
@@ -120,7 +120,31 @@ describe('routes/history/ads.endpoint', () => {
                 expect(respBody).to.deep.equal({ data: [{ "test": "object" }] });
                 expect(databaseStubbedInstance.getAdsHistory.callCount).to.equal(1, "getTopAds should just be called once");
                 let call = databaseStubbedInstance.getAdsHistory.getCall(0);
-                expect(call.args).to.deep.equal([undefined, 594]);
+                expect(call.args).to.deep.equal([undefined, 594, undefined]);
+                done();
+            });
+            const testa = testObject.createAdsEndpoint(<any>databaseStubbedInstance);
+            testa(req, res, nextSpy);
+        });
+        it('should respond with client present', (done) => {
+            let req = httpMocks.createRequest({
+                query: {
+                    to: 594,
+                    client: "randomclient"
+                }
+            });
+            let res = httpMocks.createResponse({
+                eventEmitter: require('events').EventEmitter
+            });
+            res.on('end', function () {
+                expect(nextSpy.callCount).to.equal(0);
+                expect(res.statusCode).to.equal(200);
+                let respBody: any = JSON.parse(res._getData());
+                expect(res.header("Content-Type")).to.equal("application/json");
+                expect(respBody).to.deep.equal({ data: [{ "test": "object" }] });
+                expect(databaseStubbedInstance.getAdsHistory.callCount).to.equal(1, "getTopAds should just be called once");
+                let call = databaseStubbedInstance.getAdsHistory.getCall(0);
+                expect(call.args).to.deep.equal([undefined, 594, "randomclient"]);
                 done();
             });
             const testa = testObject.createAdsEndpoint(<any>databaseStubbedInstance);

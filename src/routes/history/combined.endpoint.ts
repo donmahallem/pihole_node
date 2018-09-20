@@ -8,7 +8,7 @@ import { createListResponseObserver } from "../../response/list-response.observe
 export const createCombindedEndpoint = (database: PiholeDatabase): express.RequestHandler => {
     return (req: express.Request, res: express.Response, next: express.NextFunction): void => {
         if (req.query !== undefined) {
-            database.getCombinedHistory(req.query.from, req.query.to)
+            database.getCombinedHistory(req.query.from, req.query.to, req.query.client)
                 .subscribe(createListResponseObserver(req, res, next));
         } else {
             database.getCombinedHistory()
