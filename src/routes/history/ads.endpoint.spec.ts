@@ -2,18 +2,17 @@ import {
     Request,
     Response,
     RequestHandler
-} from "express";
+} from 'express';
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 import 'mocha';
 import {
     RouteError
-} from "../route-error";
-import * as express from "express";
-import * as testObject from "./ads.endpoint";
-import * as httpMocks from "node-mocks-http";
-import { PiholeDatabase } from "../../helper/pihole-database";
-import { of as rxjsOf } from "rxjs";
+} from '../route-error';
+import * as testObject from './ads.endpoint';
+import * as httpMocks from 'node-mocks-http';
+import { PiholeDatabase } from '../../helper/pihole-database';
+import { of as rxjsOf } from 'rxjs';
 describe('routes/history/ads.endpoint', () => {
     describe('createAdsEndpoint', function () {
         var nextSpy: sinon.SinonSpy;
@@ -23,7 +22,7 @@ describe('routes/history/ads.endpoint', () => {
             databaseStubbedInstance = sinon.createStubInstance(PiholeDatabase);
             databaseStubbedInstance.getAdsHistory
                 .callsFake(() => {
-                    return rxjsOf({ "test": "object" });
+                    return rxjsOf({ test: 'object' });
                 })
         });
         afterEach(() => {
@@ -43,8 +42,8 @@ describe('routes/history/ads.endpoint', () => {
                 expect(nextSpy.callCount).to.equal(0);
                 expect(res.statusCode).to.equal(200);
                 let respBody: any = JSON.parse(res._getData());
-                expect(res.header("Content-Type")).to.equal("application/json");
-                expect(respBody).to.deep.equal({ data: [{ "test": "object" }] });
+                expect(res.header('Content-Type')).to.equal('application/json');
+                expect(respBody).to.deep.equal({ data: [{ 'test': 'object' }] });
                 expect(databaseStubbedInstance.getAdsHistory.callCount).to.equal(1);
                 let call = databaseStubbedInstance.getAdsHistory.getCall(0);
                 expect(call.args).to.deep.equal([undefined, undefined, undefined]);
@@ -68,8 +67,8 @@ describe('routes/history/ads.endpoint', () => {
                 expect(nextSpy.callCount).to.equal(0);
                 expect(res.statusCode).to.equal(200);
                 let respBody: any = JSON.parse(res._getData());
-                expect(res.header("Content-Type")).to.equal("application/json");
-                expect(respBody).to.deep.equal({ data: [{ "test": "object" }] });
+                expect(res.header('Content-Type')).to.equal('application/json');
+                expect(respBody).to.deep.equal({ data: [{ 'test': 'object' }] });
                 expect(databaseStubbedInstance.getAdsHistory.callCount).to.equal(1);
                 let call = databaseStubbedInstance.getAdsHistory.getCall(0);
                 expect(call.args).to.deep.equal([29, 299, undefined]);
@@ -93,9 +92,9 @@ describe('routes/history/ads.endpoint', () => {
                 expect(nextSpy.callCount).to.equal(0);
                 expect(res.statusCode).to.equal(200);
                 let respBody: any = JSON.parse(res._getData());
-                expect(res.header("Content-Type")).to.equal("application/json");
-                expect(respBody).to.deep.equal({ data: [{ "test": "object" }] });
-                expect(databaseStubbedInstance.getAdsHistory.callCount).to.equal(1, "getTopAds should just be called once");
+                expect(res.header('Content-Type')).to.equal('application/json');
+                expect(respBody).to.deep.equal({ data: [{ 'test': 'object' }] });
+                expect(databaseStubbedInstance.getAdsHistory.callCount).to.equal(1, 'getTopAds should just be called once');
                 let call = databaseStubbedInstance.getAdsHistory.getCall(0);
                 expect(call.args).to.deep.equal([2993, undefined, undefined]);
                 done();
@@ -116,9 +115,9 @@ describe('routes/history/ads.endpoint', () => {
                 expect(nextSpy.callCount).to.equal(0);
                 expect(res.statusCode).to.equal(200);
                 let respBody: any = JSON.parse(res._getData());
-                expect(res.header("Content-Type")).to.equal("application/json");
-                expect(respBody).to.deep.equal({ data: [{ "test": "object" }] });
-                expect(databaseStubbedInstance.getAdsHistory.callCount).to.equal(1, "getTopAds should just be called once");
+                expect(res.header('Content-Type')).to.equal('application/json');
+                expect(respBody).to.deep.equal({ data: [{ 'test': 'object' }] });
+                expect(databaseStubbedInstance.getAdsHistory.callCount).to.equal(1, 'getTopAds should just be called once');
                 let call = databaseStubbedInstance.getAdsHistory.getCall(0);
                 expect(call.args).to.deep.equal([undefined, 594, undefined]);
                 done();
@@ -130,7 +129,7 @@ describe('routes/history/ads.endpoint', () => {
             let req = httpMocks.createRequest({
                 query: {
                     to: 594,
-                    client: "randomclient"
+                    client: 'randomclient'
                 }
             });
             let res = httpMocks.createResponse({
@@ -140,11 +139,11 @@ describe('routes/history/ads.endpoint', () => {
                 expect(nextSpy.callCount).to.equal(0);
                 expect(res.statusCode).to.equal(200);
                 let respBody: any = JSON.parse(res._getData());
-                expect(res.header("Content-Type")).to.equal("application/json");
-                expect(respBody).to.deep.equal({ data: [{ "test": "object" }] });
-                expect(databaseStubbedInstance.getAdsHistory.callCount).to.equal(1, "getTopAds should just be called once");
+                expect(res.header('Content-Type')).to.equal('application/json');
+                expect(respBody).to.deep.equal({ data: [{ 'test': 'object' }] });
+                expect(databaseStubbedInstance.getAdsHistory.callCount).to.equal(1, 'getTopAds should just be called once');
                 let call = databaseStubbedInstance.getAdsHistory.getCall(0);
-                expect(call.args).to.deep.equal([undefined, 594, "randomclient"]);
+                expect(call.args).to.deep.equal([undefined, 594, 'randomclient']);
                 done();
             });
             const testa = testObject.createAdsEndpoint(<any>databaseStubbedInstance);
