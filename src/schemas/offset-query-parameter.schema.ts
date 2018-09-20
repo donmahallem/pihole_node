@@ -3,8 +3,8 @@ import { Schema } from 'jsonschema';
 export const createIntegerRangeSchema = (minimum: number, maximum: number): Schema => {
     return {
         type: 'integer',
-        minimum: minimum,
-        maximum: maximum
+        minimum,
+        maximum
     }
 }
 
