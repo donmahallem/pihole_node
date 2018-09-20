@@ -1,11 +1,12 @@
 import * as sqlite from 'sqlite3';
-import { Observable, Observer } from "rxjs";
+import { Observable, Observer } from 'rxjs';
 import {
     mergeMap,
     merge,
     observeOn,
     subscribeOn
-} from "rxjs/operators";
+} from 'rxjs/operators';
+import { DatabaseUtil } from './database-util';
 
 export interface Query {
     //autoincrement ID for the table, only used by SQLite3, not by FTLDNS
@@ -24,39 +25,12 @@ export interface Query {
     forward?: string | undefined;
 }
 
-function prepareStatement(db: sqlite.Database, statement: string, params?: any) {
-    return Observable.create((pub: Observer<sqlite.Statement>) => {
-        db.serialize(() => {
-            const stat: sqlite.Statement = db.prepare(statement, params);
-            pub.next(stat);
-            pub.complete();
-        });
-    });
-}
-function statementToList(stat: sqlite.Statement): Observable<any> {
-    return Observable.create((pub: Observer<any>) => {
-        stat.each((err: Error, row: any) => {
-            if (err) {
-            } else {
-                pub.next(row);
-            }
-        }, (err: Error, count: number) => {
-            if (err) {
-                pub.error(err);
-            } else {
-                pub.complete();
-            }
-            stat.finalize();
-        });
-    });
-}
-
 export class PiholeDatabase {
 
     private database: sqlite.Database;
     private static mInstance: PiholeDatabase;
     private constructor() {
-        this.database = sqlite.cached.Database("pihole-FTL.db");
+        this.database = sqlite.cached.Database('pihole-FTL.db');
     }
 
     public static getInstance(): PiholeDatabase {
@@ -78,35 +52,35 @@ export class PiholeDatabase {
             paramOffset = offset;
         }
         if (client) {
-            return prepareStatement(this.database, "SELECT * FROM queries WHERE client == ? ORDER BY timestamp DESC LIMIT ? OFFSET ?", [client, limit, offset])
+            return DatabaseUtil.prepareStatement(this.database, 'SELECT * FROM queries WHERE client == ? ORDER BY timestamp DESC LIMIT ? OFFSET ?', [client, limit, offset])
                 .pipe(mergeMap((stat: sqlite.Statement) => {
-                    return statementToList(stat);
+                    return DatabaseUtil.statementToList(stat);
                 }));
         } else {
-            return prepareStatement(this.database, "SELECT * FROM queries ORDER BY timestamp DESC LIMIT ? OFFSET ?", [limit, offset])
+            return DatabaseUtil.prepareStatement(this.database, 'SELECT * FROM queries ORDER BY timestamp DESC LIMIT ? OFFSET ?', [limit, offset])
                 .pipe(mergeMap((stat: sqlite.Statement) => {
-                    return statementToList(stat);
+                    return DatabaseUtil.statementToList(stat);
                 }));
         }
     }
 
     public getTopClients(limit: number = 25, offset: number = 0) {
-        return prepareStatement(this.database, "SELECT client, count(client) as num FROM queries GROUP by client order by count(client) desc limit ? OFFSET ?", [limit, offset])
+        return DatabaseUtil.prepareStatement(this.database, 'SELECT client, count(client) as num FROM queries GROUP by client order by count(client) desc limit ? OFFSET ?', [limit, offset])
             .pipe(mergeMap((stat: sqlite.Statement) => {
-                return statementToList(stat);
+                return DatabaseUtil.statementToList(stat);
             }));
 
     }
     public getTopDomains(limit: number = 25, offset: number = 0, client?: string): Observable<any> {
         if (client) {
-            return prepareStatement(this.database, "SELECT domain,count(domain) as num FROM queries WHERE (client == ?) GROUP by domain order by count(domain) desc limit ? OFFSET ?", [client, limit, offset])
+            return DatabaseUtil.prepareStatement(this.database, 'SELECT domain,count(domain) as num FROM queries WHERE (client == ?) GROUP by domain order by count(domain) desc limit ? OFFSET ?', [client, limit, offset])
                 .pipe(mergeMap((stat: sqlite.Statement) => {
-                    return statementToList(stat);
+                    return DatabaseUtil.statementToList(stat);
                 }));
         } else {
-            return prepareStatement(this.database, "SELECT domain,count(domain) as num FROM queries GROUP by domain order by count(domain) desc limit ? OFFSET ?", [limit, offset])
+            return DatabaseUtil.prepareStatement(this.database, 'SELECT domain,count(domain) as num FROM queries GROUP by domain order by count(domain) desc limit ? OFFSET ?', [limit, offset])
                 .pipe(mergeMap((stat: sqlite.Statement) => {
-                    return statementToList(stat);
+                    return DatabaseUtil.statementToList(stat);
                 }));
         }
 
@@ -114,60 +88,60 @@ export class PiholeDatabase {
 
     public getTopAds(limit: number = 25, offset: number = 0, client?: string): Observable<any> {
         if (client) {
-            return prepareStatement(this.database, "SELECT domain,count(domain) as num FROM queries WHERE ((STATUS == 1 OR STATUS == 4) AND client == ?) GROUP by domain order by count(domain) desc limit ? OFFSET ?", [client, limit, offset])
+            return DatabaseUtil.prepareStatement(this.database, 'SELECT domain,count(domain) as num FROM queries WHERE ((STATUS == 1 OR STATUS == 4) AND client == ?) GROUP by domain order by count(domain) desc limit ? OFFSET ?', [client, limit, offset])
                 .pipe(mergeMap((stat: sqlite.Statement) => {
-                    return statementToList(stat);
+                    return DatabaseUtil.statementToList(stat);
                 }));
         } else {
-            return prepareStatement(this.database, "SELECT domain,count(domain) as num FROM queries WHERE (STATUS == 1 OR STATUS == 4) GROUP by domain order by count(domain) desc limit ? OFFSET ?", [limit, offset])
+            return DatabaseUtil.prepareStatement(this.database, 'SELECT domain,count(domain) as num FROM queries WHERE (STATUS == 1 OR STATUS == 4) GROUP by domain order by count(domain) desc limit ? OFFSET ?', [limit, offset])
                 .pipe(mergeMap((stat: sqlite.Statement) => {
-                    return statementToList(stat);
+                    return DatabaseUtil.statementToList(stat);
                 }));
         }
     }
 
     public getAdsHistory(from?: number, to?: number, client?: string): Observable<any> {
-        let query: string = "SELECT (timestamp / 60 * 60) AS key, COUNT(timestamp) as count FROM queries WHERE (STATUS == 1 OR STATUS == 4)";
+        let query: string = 'SELECT (timestamp / 60 * 60) AS key, COUNT(timestamp) as count FROM queries WHERE (STATUS == 1 OR STATUS == 4)';
         let queryParams: any[] = [];
         if (from !== undefined) {
-            query += " AND timestamp >= ?";
+            query += ' AND timestamp >= ?';
             queryParams.push(from);
         }
         if (to !== undefined) {
-            query += " AND timestamp <= ?";
+            query += ' AND timestamp <= ?';
             queryParams.push(to);
         }
         if (client !== undefined) {
-            query += " AND client == ?";
+            query += ' AND client == ?';
             queryParams.push(client);
         }
-        query += " GROUP BY key ORDER BY key ASC";
-        return prepareStatement(this.database, query, queryParams)
+        query += ' GROUP BY key ORDER BY key ASC';
+        return DatabaseUtil.prepareStatement(this.database, query, queryParams)
             .pipe(mergeMap((stat: sqlite.Statement) => {
-                return statementToList(stat);
+                return DatabaseUtil.statementToList(stat);
             }));
     }
 
     public getCombinedHistory(from?: number, to?: number, client?: string): Observable<any> {
-        let innerQuery: string = "SELECT (timestamp / 60 * 60) AS key, (STATUS == 1 OR STATUS == 4) as isAd FROM queries";
+        let innerQuery: string = 'SELECT (timestamp / 60 * 60) AS key, (STATUS == 1 OR STATUS == 4) as isAd FROM queries';
         let queryParams: any[] = [];
         if (from !== undefined) {
-            innerQuery += " AND timestamp >= ?";
+            innerQuery += ' AND timestamp >= ?';
             queryParams.push(from);
         }
         if (to !== undefined) {
-            innerQuery += " AND timestamp <= ?";
+            innerQuery += ' AND timestamp <= ?';
             queryParams.push(to);
         }
         if (client !== undefined) {
-            innerQuery += " AND client == ?";
+            innerQuery += ' AND client == ?';
             queryParams.push(client);
         }
-        innerQuery += " ORDER BY key ASC";
-        let query: string = "SELECT key, SUM(isAd) AS ads,COUNT(isAd) AS total  FROM (" + innerQuery + ") GROUP BY key ORDER BY key ASC";
-        return prepareStatement(this.database, query, queryParams)
+        innerQuery += ' ORDER BY key ASC';
+        let query: string = 'SELECT key, SUM(isAd) AS ads,COUNT(isAd) AS total  FROM (' + innerQuery + ') GROUP BY key ORDER BY key ASC';
+        return DatabaseUtil.prepareStatement(this.database, query, queryParams)
             .pipe(mergeMap((stat: sqlite.Statement) => {
-                return statementToList(stat);
+                return DatabaseUtil.statementToList(stat);
             }));
     }
 }
