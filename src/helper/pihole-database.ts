@@ -57,7 +57,7 @@ export class PiholeDatabase {
     }
 
     public getTopClients(limit: number = 25, offset: number = 0) {
-        const query: string = 'SELECT client, count(client) as num FROM queries"
+        const query: string = 'SELECT client, count(client) as num FROM queries'
             + ' GROUP by client order by count(client) desc limit ? OFFSET ?';
         const queryParams: any[] = [limit, offset];
         return DatabaseUtil.listQuery(this.database, query, queryParams);
