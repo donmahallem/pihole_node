@@ -34,7 +34,6 @@ describe('routes/top/route', () => {
         var createTopClientsEndpointRequestHandlerStub: sinon.SinonStub;
         //var databaseStub: sinon.SinonStubbedInstance<PiholeDatabase>;
         before(function () {
-            console.log("outer before");
             // A stub we can use to control conditionals
             createTopAdsEndpointStub = sinon.stub(adsEndpoint, "createTopAdsEndpoint");
             createTopAdsEndpointRequestHandlerStub = sinon.stub();
@@ -51,7 +50,6 @@ describe('routes/top/route', () => {
             app = express();
             testRouter = testObject.createTopRouter();
             app.use(testRouter);
-            //databaseStub = sinon.createStubInstance(PiholeDatabase);
             dbInstanceStub = sinon.stub(PiholeDatabase, "getInstance").returns({});
         });
         afterEach(() => {
@@ -59,7 +57,6 @@ describe('routes/top/route', () => {
             createTopClientsEndpointRequestHandlerStub.reset();
         });
         after(() => {
-            console.log("outer after");
             createTopAdsEndpointStub.restore();
             createTopClientsEndpointStub.restore();
             queryParameterValidatorStub.restore();

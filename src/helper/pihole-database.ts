@@ -111,6 +111,7 @@ export class PiholeDatabase {
         }
 
     }
+
     public getTopAds(limit: number = 25, offset: number = 0, client?: string): Observable<any> {
         if (client) {
             return prepareStatement(this.database, "SELECT domain,count(domain) as num FROM queries WHERE ((STATUS == 1 OR STATUS == 4) AND client == ?) GROUP by domain order by count(domain) desc limit ? OFFSET ?", [client, limit, offset])
@@ -123,5 +124,50 @@ export class PiholeDatabase {
                     return statementToList(stat);
                 }));
         }
+    }
+
+    public getAdsHistory(from?: number, to?: number, client?: string): Observable<any> {
+        let query: string = "SELECT (timestamp / 60 * 60) AS key, COUNT(timestamp) as count FROM queries WHERE (STATUS == 1 OR STATUS == 4)";
+        let queryParams: any[] = [];
+        if (from !== undefined) {
+            query += " AND timestamp >= ?";
+            queryParams.push(from);
+        }
+        if (to !== undefined) {
+            query += " AND timestamp <= ?";
+            queryParams.push(to);
+        }
+        if (client !== undefined) {
+            query += " AND client == ?";
+            queryParams.push(client);
+        }
+        query += " GROUP BY key ORDER BY key ASC";
+        return prepareStatement(this.database, query, queryParams)
+            .pipe(mergeMap((stat: sqlite.Statement) => {
+                return statementToList(stat);
+            }));
+    }
+
+    public getCombinedHistory(from?: number, to?: number, client?: string): Observable<any> {
+        let innerQuery: string = "SELECT (timestamp / 60 * 60) AS key, (STATUS == 1 OR STATUS == 4) as isAd FROM queries";
+        let queryParams: any[] = [];
+        if (from !== undefined) {
+            innerQuery += " AND timestamp >= ?";
+            queryParams.push(from);
+        }
+        if (to !== undefined) {
+            innerQuery += " AND timestamp <= ?";
+            queryParams.push(to);
+        }
+        if (client !== undefined) {
+            innerQuery += " AND client == ?";
+            queryParams.push(client);
+        }
+        innerQuery += " ORDER BY key ASC";
+        let query: string = "SELECT key, SUM(isAd) AS ads,COUNT(isAd) AS total  FROM (" + innerQuery + ") GROUP BY key ORDER BY key ASC";
+        return prepareStatement(this.database, query, queryParams)
+            .pipe(mergeMap((stat: sqlite.Statement) => {
+                return statementToList(stat);
+            }));
     }
 }
