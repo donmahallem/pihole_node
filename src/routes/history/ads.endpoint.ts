@@ -7,7 +7,12 @@ import { createListResponseObserver } from "../../response/list-response.observe
 
 export const createAdsEndpoint = (database: PiholeDatabase): express.RequestHandler => {
     return (req: express.Request, res: express.Response, next: express.NextFunction): void => {
-        database.getAdsHistory()
-            .subscribe(createListResponseObserver(req, res, next));
+        if (req.query !== undefined) {
+            database.getAdsHistory(req.query.from, req.query.to)
+                .subscribe(createListResponseObserver(req, res, next));
+        } else {
+            database.getAdsHistory()
+                .subscribe(createListResponseObserver(req, res, next));
+        }
     };
 }
