@@ -51,12 +51,14 @@ export class PiholeDatabase {
         }
         queryParams.push(limit);
         queryParams.push(offset);
-        const query: string = 'SELECT * FROM queries' + innerQuery + ' ORDER BY timestamp DESC LIMIT ? OFFSET ?';
+        const query: string = 'SELECT * FROM queries'
+            + innerQuery + ' ORDER BY timestamp DESC LIMIT ? OFFSET ?';
         return DatabaseUtil.listQuery(this.database, query, queryParams);
     }
 
     public getTopClients(limit: number = 25, offset: number = 0) {
-        const query: string = 'SELECT client, count(client) as num FROM queries GROUP by client order by count(client) desc limit ? OFFSET ?';
+        const query: string = 'SELECT client, count(client) as num FROM queries"
+            + ' GROUP by client order by count(client) desc limit ? OFFSET ?';
         const queryParams: any[] = [limit, offset];
         return DatabaseUtil.listQuery(this.database, query, queryParams);
 
@@ -70,7 +72,8 @@ export class PiholeDatabase {
         }
         queryParams.push(limit);
         queryParams.push(offset);
-        const query: string = 'SELECT domain,count(domain) as num FROM queries' + innerQuery + ' GROUP by domain order by count(domain) desc limit ? OFFSET ?';
+        const query: string = 'SELECT domain,count(domain) as num FROM queries'
+            + innerQuery + ' GROUP by domain order by count(domain) desc limit ? OFFSET ?';
         return DatabaseUtil.listQuery(this.database, query, queryParams);
 
     }
@@ -84,12 +87,14 @@ export class PiholeDatabase {
         }
         queryParams.push(limit);
         queryParams.push(offset);
-        const query: string = 'SELECT domain,count(domain) as num FROM queries WHERE ((STATUS == 1 OR STATUS == 4)' + innerQuery + ' GROUP by domain order by count(domain) desc limit ? OFFSET ?';
+        const query: string = 'SELECT domain,count(domain) as num FROM queries WHERE ((STATUS == 1 OR STATUS == 4)'
+            + innerQuery + ' GROUP by domain order by count(domain) desc limit ? OFFSET ?';
         return DatabaseUtil.listQuery(this.database, query, queryParams);
     }
 
     public getAdsHistory(from?: number, to?: number, client?: string): Observable<any> {
-        let query: string = 'SELECT (timestamp / 60 * 60) AS key, COUNT(timestamp) as count FROM queries WHERE (STATUS == 1 OR STATUS == 4)';
+        let query: string = 'SELECT (timestamp / 60 * 60) AS key, COUNT(timestamp) as count FROM queries'
+            + ' WHERE (STATUS == 1 OR STATUS == 4)';
         let queryParams: any[] = [];
         if (from !== undefined) {
             query += ' AND timestamp >= ?';
@@ -123,7 +128,8 @@ export class PiholeDatabase {
             queryParams.push(client);
         }
         innerQuery += ' ORDER BY key ASC';
-        let query: string = 'SELECT key, SUM(isAd) AS ads,COUNT(isAd) AS total  FROM (' + innerQuery + ') GROUP BY key ORDER BY key ASC';
+        let query: string = 'SELECT key, SUM(isAd) AS ads,COUNT(isAd) AS total  FROM ('
+            + innerQuery + ') GROUP BY key ORDER BY key ASC';
         return DatabaseUtil.listQuery(this.database, query, queryParams);
     }
 }
