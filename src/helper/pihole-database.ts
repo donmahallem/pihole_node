@@ -43,61 +43,49 @@ export class PiholeDatabase {
     }
 
     public getQueries(limit: number = 25, offset: number = 0, client?: string): Observable<Query> {
-        let paramLimit: number = 25;
-        let paramOffset: number = 0;
-        if (limit && Number.isInteger(limit) && limit >= 0) {
-            paramLimit = limit;
-        }
-        if (offset && Number.isInteger(offset) && offset >= 0) {
-            paramOffset = offset;
-        }
+        let innerQuery: string = '';
+        let queryParams: any[] = [];
         if (client) {
-            return DatabaseUtil.prepareStatement(this.database, 'SELECT * FROM queries WHERE client == ? ORDER BY timestamp DESC LIMIT ? OFFSET ?', [client, limit, offset])
-                .pipe(mergeMap((stat: sqlite.Statement) => {
-                    return DatabaseUtil.statementToList(stat);
-                }));
-        } else {
-            return DatabaseUtil.prepareStatement(this.database, 'SELECT * FROM queries ORDER BY timestamp DESC LIMIT ? OFFSET ?', [limit, offset])
-                .pipe(mergeMap((stat: sqlite.Statement) => {
-                    return DatabaseUtil.statementToList(stat);
-                }));
+            innerQuery += ' WHERE (client == ?)';
+            queryParams.push(client);
         }
+        queryParams.push(limit);
+        queryParams.push(offset);
+        const query: string = 'SELECT * FROM queries' + innerQuery + ' ORDER BY timestamp DESC LIMIT ? OFFSET ?';
+        return DatabaseUtil.listQuery(this.database, query, queryParams);
     }
 
     public getTopClients(limit: number = 25, offset: number = 0) {
-        return DatabaseUtil.prepareStatement(this.database, 'SELECT client, count(client) as num FROM queries GROUP by client order by count(client) desc limit ? OFFSET ?', [limit, offset])
-            .pipe(mergeMap((stat: sqlite.Statement) => {
-                return DatabaseUtil.statementToList(stat);
-            }));
+        const query: string = 'SELECT client, count(client) as num FROM queries GROUP by client order by count(client) desc limit ? OFFSET ?';
+        const queryParams: any[] = [limit, offset];
+        return DatabaseUtil.listQuery(this.database, query, queryParams);
 
     }
     public getTopDomains(limit: number = 25, offset: number = 0, client?: string): Observable<any> {
+        let innerQuery: string = '';
+        let queryParams: any[] = [];
         if (client) {
-            return DatabaseUtil.prepareStatement(this.database, 'SELECT domain,count(domain) as num FROM queries WHERE (client == ?) GROUP by domain order by count(domain) desc limit ? OFFSET ?', [client, limit, offset])
-                .pipe(mergeMap((stat: sqlite.Statement) => {
-                    return DatabaseUtil.statementToList(stat);
-                }));
-        } else {
-            return DatabaseUtil.prepareStatement(this.database, 'SELECT domain,count(domain) as num FROM queries GROUP by domain order by count(domain) desc limit ? OFFSET ?', [limit, offset])
-                .pipe(mergeMap((stat: sqlite.Statement) => {
-                    return DatabaseUtil.statementToList(stat);
-                }));
+            innerQuery += ' WHERE (client == ?)';
+            queryParams.push(client);
         }
+        queryParams.push(limit);
+        queryParams.push(offset);
+        const query: string = 'SELECT domain,count(domain) as num FROM queries' + innerQuery + ' GROUP by domain order by count(domain) desc limit ? OFFSET ?';
+        return DatabaseUtil.listQuery(this.database, query, queryParams);
 
     }
 
     public getTopAds(limit: number = 25, offset: number = 0, client?: string): Observable<any> {
+        let innerQuery: string = '';
+        let queryParams: any[] = [];
         if (client) {
-            return DatabaseUtil.prepareStatement(this.database, 'SELECT domain,count(domain) as num FROM queries WHERE ((STATUS == 1 OR STATUS == 4) AND client == ?) GROUP by domain order by count(domain) desc limit ? OFFSET ?', [client, limit, offset])
-                .pipe(mergeMap((stat: sqlite.Statement) => {
-                    return DatabaseUtil.statementToList(stat);
-                }));
-        } else {
-            return DatabaseUtil.prepareStatement(this.database, 'SELECT domain,count(domain) as num FROM queries WHERE (STATUS == 1 OR STATUS == 4) GROUP by domain order by count(domain) desc limit ? OFFSET ?', [limit, offset])
-                .pipe(mergeMap((stat: sqlite.Statement) => {
-                    return DatabaseUtil.statementToList(stat);
-                }));
+            innerQuery += ' AND (client == ?)';
+            queryParams.push(client);
         }
+        queryParams.push(limit);
+        queryParams.push(offset);
+        const query: string = 'SELECT domain,count(domain) as num FROM queries WHERE ((STATUS == 1 OR STATUS == 4)' + innerQuery + ' GROUP by domain order by count(domain) desc limit ? OFFSET ?';
+        return DatabaseUtil.listQuery(this.database, query, queryParams);
     }
 
     public getAdsHistory(from?: number, to?: number, client?: string): Observable<any> {
@@ -116,10 +104,7 @@ export class PiholeDatabase {
             queryParams.push(client);
         }
         query += ' GROUP BY key ORDER BY key ASC';
-        return DatabaseUtil.prepareStatement(this.database, query, queryParams)
-            .pipe(mergeMap((stat: sqlite.Statement) => {
-                return DatabaseUtil.statementToList(stat);
-            }));
+        return DatabaseUtil.listQuery(this.database, query, queryParams);
     }
 
     public getCombinedHistory(from?: number, to?: number, client?: string): Observable<any> {
@@ -139,9 +124,6 @@ export class PiholeDatabase {
         }
         innerQuery += ' ORDER BY key ASC';
         let query: string = 'SELECT key, SUM(isAd) AS ads,COUNT(isAd) AS total  FROM (' + innerQuery + ') GROUP BY key ORDER BY key ASC';
-        return DatabaseUtil.prepareStatement(this.database, query, queryParams)
-            .pipe(mergeMap((stat: sqlite.Statement) => {
-                return DatabaseUtil.statementToList(stat);
-            }));
+        return DatabaseUtil.listQuery(this.database, query, queryParams);
     }
 }
