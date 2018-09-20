@@ -1,16 +1,10 @@
 import { Schema } from 'jsonschema';
 
-export const OffsetQueryParameterSchema: Schema = {
-    'id': '/SimpleAddress',
-    'type': 'integer',
-    'minimum': 0
-}
-
 export const createIntegerRangeSchema = (minimum: number, maximum: number): Schema => {
     return {
-        'type': 'integer',
-        'minimum': minimum,
-        'maximum': maximum
+        type: 'integer',
+        minimum: minimum,
+        maximum: maximum
     }
 }
 
