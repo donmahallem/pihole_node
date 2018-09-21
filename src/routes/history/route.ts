@@ -1,10 +1,9 @@
-import * as express from "express";
-import { createCombindedEndpoint } from "./combined.endpoint";
-import { createAdsEndpoint } from "./ads.endpoint";
-import { queryParameterValidator } from "../../middleware/query-parameter-validator.middleware";
-import * as jsonschema from "jsonschema";
-import { TopQueryParameterSchema } from "../../schemas/offset-query-parameter.schema";
-import { PiholeDatabase } from "../../helper/pihole-database";
+import * as express from 'express';
+import { createCombindedEndpoint } from './combined.endpoint';
+import { createAdsEndpoint } from './ads.endpoint';
+import { queryParameterValidator } from '../../middleware/query-parameter-validator.middleware';
+import { PiholeDatabase } from '../../helper/pihole-database';
+import { FromToQueryParameterSchema } from '../../schemas/from-to-parameter.schema';
 
 /**
  * The router for the api endpoints
@@ -14,7 +13,7 @@ let router = express.Router();
 
 const db: PiholeDatabase = PiholeDatabase.getInstance();
 
-const subRouter = router.use(queryParameterValidator(TopQueryParameterSchema));
-subRouter.get("/", createCombindedEndpoint(db));
-subRouter.get("/ads", createAdsEndpoint(db));
+const subRouter = router.use(queryParameterValidator(FromToQueryParameterSchema));
+subRouter.get('/', createCombindedEndpoint(db));
+subRouter.get('/ads', createAdsEndpoint(db));
 export = router;

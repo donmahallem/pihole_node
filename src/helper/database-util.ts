@@ -3,6 +3,9 @@ import {
     Observer,
     Observable
 } from "rxjs";
+import {
+    mergeMap
+} from 'rxjs/operators';
 
 
 export class DatabaseUtil {
@@ -43,5 +46,12 @@ export class DatabaseUtil {
                 stat.finalize();
             });
         });
+    }
+
+    public static listQuery(database: sqlite.Database, query: string, queryParams: any[]): Observable<any> {
+        return DatabaseUtil.prepareStatement(database, query, queryParams)
+            .pipe(mergeMap((stat: sqlite.Statement) => {
+                return DatabaseUtil.statementToList(stat);
+            }));
     }
 }
