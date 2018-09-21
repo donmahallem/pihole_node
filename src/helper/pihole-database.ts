@@ -44,7 +44,7 @@ export class PiholeDatabase {
 
     public getQueries(limit: number = 25, offset: number = 0, client?: string): Observable<Query> {
         let innerQuery: string = '';
-        let queryParams: any[] = [];
+        const queryParams: any[] = [];
         if (client) {
             innerQuery += ' WHERE (client == ?)';
             queryParams.push(client);
@@ -65,7 +65,7 @@ export class PiholeDatabase {
     }
     public getTopDomains(limit: number = 25, offset: number = 0, client?: string): Observable<any> {
         let innerQuery: string = '';
-        let queryParams: any[] = [];
+        const queryParams: any[] = [];
         if (client) {
             innerQuery += ' WHERE (client == ?)';
             queryParams.push(client);
@@ -80,7 +80,7 @@ export class PiholeDatabase {
 
     public getTopAds(limit: number = 25, offset: number = 0, client?: string): Observable<any> {
         let innerQuery: string = '';
-        let queryParams: any[] = [];
+        const queryParams: any[] = [];
         if (client) {
             innerQuery += ' AND (client == ?)';
             queryParams.push(client);
@@ -95,7 +95,7 @@ export class PiholeDatabase {
     public getAdsHistory(from?: number, to?: number, client?: string): Observable<any> {
         let query: string = 'SELECT (timestamp / 60 * 60) AS key, COUNT(timestamp) as count FROM queries'
             + ' WHERE (STATUS == 1 OR STATUS == 4)';
-        let queryParams: any[] = [];
+        const queryParams: any[] = [];
         if (from !== undefined) {
             query += ' AND timestamp >= ?';
             queryParams.push(from);
@@ -113,8 +113,9 @@ export class PiholeDatabase {
     }
 
     public getCombinedHistory(from?: number, to?: number, client?: string): Observable<any> {
-        let innerQuery: string = 'SELECT (timestamp / 60 * 60) AS key, (STATUS == 1 OR STATUS == 4) as isAd FROM queries';
-        let queryParams: any[] = [];
+        let innerQuery: string = 'SELECT (timestamp / 60 * 60) AS key, (STATUS == 1 OR STATUS == 4) as isAd'
+            + ' FROM queries';
+        const queryParams: any[] = [];
         if (from !== undefined) {
             innerQuery += ' AND timestamp >= ?';
             queryParams.push(from);
@@ -128,7 +129,7 @@ export class PiholeDatabase {
             queryParams.push(client);
         }
         innerQuery += ' ORDER BY key ASC';
-        let query: string = 'SELECT key, SUM(isAd) AS ads,COUNT(isAd) AS total  FROM ('
+        const query: string = 'SELECT key, SUM(isAd) AS ads,COUNT(isAd) AS total  FROM ('
             + innerQuery + ') GROUP BY key ORDER BY key ASC';
         return DatabaseUtil.listQuery(this.database, query, queryParams);
     }
