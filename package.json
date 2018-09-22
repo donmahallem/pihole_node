@@ -9,8 +9,8 @@
         "build:live": "nodemon",
         "build": "node ./node_modules/typescript/bin/tsc --outdir ./dist/ --baseUrl ./src/",
         "build:doc": "node ./node_modules/typedoc/bin/typedoc --out ./tt2/ --mode modules --exclude /**/index ./src/",
-        "test-ci": "nyc ts-mocha -p tsconfig.json --opts mocha.opts",
-        "test-ci2": "ts-mocha -p tsconfig.json --opts mocha.opts"
+        "test-ci_old": "nyc ts-mocha -p tsconfig.json -- --opts mocha.opts",
+        "test-ci": "nyc mocha --opts mocha.opts"
     },
     "author": "",
     "license": "MIT",
@@ -82,6 +82,8 @@
             "text-summary",
             "lcov"
         ],
+        "sourceMap": true,
+        "instrument": true,
         "all": true
     }
 }
