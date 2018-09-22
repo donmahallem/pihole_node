@@ -88,6 +88,7 @@ describe('src/middleware/permission.middleware', () => {
             expect(asdf).to.be.not.null;
             asdf(req, res, <any>nextSpy);
             expect(verifyStub.callCount).to.equal(1);
+            expect(verifyStub.getCall(0).args[0]).to.equal(299);
             expect(req.user).to.exist;
             expect(req.user).to.deep.equal(testUserData);
             expect(nextSpy.callCount).to.equal(1);
@@ -105,6 +106,7 @@ describe('src/middleware/permission.middleware', () => {
             expect(asdf).to.be.not.null;
             asdf(req, res, <any>nextSpy);
             expect(verifyStub.callCount).to.equal(1);
+            expect(verifyStub.getCall(0).args[0]).to.equal(299);
             expect(req.user).to.exist;
             expect(req.user).to.deep.equal(testUserData);
             expect(nextSpy.callCount).to.equal(1);
@@ -122,6 +124,7 @@ describe('src/middleware/permission.middleware', () => {
             expect(asdf).to.be.not.null;
             asdf(req, res, <any>nextSpy);
             expect(verifyStub.callCount).to.equal(1);
+            expect(verifyStub.getCall(0).args[0]).to.equal(299);
             expect(req.user).to.exist;
             expect(req.user).to.deep.equal(testUserData);
             expect(nextSpy.callCount).to.equal(1);
