@@ -94,6 +94,23 @@ describe('src/middleware/permission.middleware', () => {
             expect(nextSpy.callCount).to.equal(1);
             expect(nextSpy.getCall(0).args.length).to.equal(0);
         });
+        it('should pass an authorized user object on request missing the user in the token', () => {
+            const testUserData: any = { testdata1: 129, testdata2: "asdf" };
+            verifyStub.callsArgWith(2, []);
+            let asdf: RequestHandler = testObject.createAuthorizationMiddleware();
+            let queryData: any = { offset: 2 };
+            let req: any = { query: queryData, headers: { authorization: 299 } };
+            let res: any = {};
+            verifyStub.callsArgWith(3, undefined, { usera: testUserData });
+            expect(asdf).to.be.not.null;
+            asdf(req, res, <any>nextSpy);
+            expect(verifyStub.callCount).to.equal(1);
+            expect(verifyStub.getCall(0).args[0]).to.equal(299);
+            expect(req.user).to.not.exist;
+            //expect(req.user).to.deep.equal(testUserData);
+            expect(nextSpy.callCount).to.equal(1);
+            expect(nextSpy.getCall(0).args.length).to.equal(0);
+        });
         it('should pass an unauthorized user object on request when verify throws error', () => {
             const testUserData: any = { authorized: false };
             verifyStub.callsArgWith(2, []);
