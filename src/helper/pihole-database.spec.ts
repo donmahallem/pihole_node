@@ -37,6 +37,80 @@ describe('src/helper/pihole-database', () => {
         after(() => {
             sqliteCacheStub.restore();
         });
+        describe("getQueries", () => {
+            let databaseUtilStub: sinon.SinonStub;
+            beforeEach(() => {
+                databaseUtilStub = sinon.stub(DatabaseUtil, "listQuery");
+                databaseUtilStub.returns(of(1, 2, 3, 8, 9));
+            });
+            afterEach(() => {
+                databaseUtilStub.restore();
+            });
+            it('should pass with provided arguments', (done) => {
+                const query: string = 'SELECT * FROM queries ORDER BY timestamp DESC LIMIT ? OFFSET ?';
+                const limit: number = 200;
+                const offset: number = 20;
+                const queryParams: any[] = [limit, offset];
+                const db: testObject.PiholeDatabase = testObject.PiholeDatabase.getInstance();
+                db.getQueries(limit, offset)
+                    .subscribe(mockNext, (err: Error) => {
+                        done(err);
+                    }, () => {
+                        expect(mockNext.callCount).to.equal(5);
+                        expect(mockNext.args).to.deep.equal([[1], [2], [3], [8], [9]]);
+                        expect(databaseUtilStub.callCount).to.equal(1);
+                        const args: any[] = databaseUtilStub.getCall(0).args;
+                        expect(args[0]).to.equal(sqliteDbStub);
+                        expect(args[1]).to.deep.equal(query);
+                        expect(args[2]).to.deep.equal(queryParams);
+                        //expect(databaseUtilStub.getCall(0).args).to.deep.equal([db, query, queryParams]);
+                        done();
+                    });
+            });
+            it('should pass with default arguments', (done) => {
+                const query: string = 'SELECT * FROM queries ORDER BY timestamp DESC LIMIT ? OFFSET ?';
+                const limit: number = 25;
+                const offset: number = 0;
+                const queryParams: any[] = [limit, offset];
+                const db: testObject.PiholeDatabase = testObject.PiholeDatabase.getInstance();
+                db.getQueries()
+                    .subscribe(mockNext, (err: Error) => {
+                        done(err);
+                    }, () => {
+                        expect(mockNext.callCount).to.equal(5);
+                        expect(mockNext.args).to.deep.equal([[1], [2], [3], [8], [9]]);
+                        expect(databaseUtilStub.callCount).to.equal(1);
+                        const args: any[] = databaseUtilStub.getCall(0).args;
+                        expect(args[0]).to.equal(sqliteDbStub);
+                        expect(args[1]).to.deep.equal(query);
+                        expect(args[2]).to.deep.equal(queryParams);
+                        //expect(databaseUtilStub.getCall(0).args).to.deep.equal([db, query, queryParams]);
+                        done();
+                    });
+            });
+            it('should use client', (done) => {
+                const query: string = 'SELECT * FROM queries WHERE (client == ?) ORDER BY timestamp DESC LIMIT ? OFFSET ?';
+                const limit: number = 250;
+                const offset: number = 234;
+                const client: string = "anyclient";
+                const queryParams: any[] = [client, limit, offset];
+                const db: testObject.PiholeDatabase = testObject.PiholeDatabase.getInstance();
+                db.getQueries(limit, offset, client)
+                    .subscribe(mockNext, (err: Error) => {
+                        done(err);
+                    }, () => {
+                        expect(mockNext.callCount).to.equal(5);
+                        expect(mockNext.args).to.deep.equal([[1], [2], [3], [8], [9]]);
+                        expect(databaseUtilStub.callCount).to.equal(1);
+                        const args: any[] = databaseUtilStub.getCall(0).args;
+                        expect(args[0]).to.equal(sqliteDbStub);
+                        expect(args[1]).to.deep.equal(query);
+                        expect(args[2]).to.deep.equal(queryParams);
+                        //expect(databaseUtilStub.getCall(0).args).to.deep.equal([db, query, queryParams]);
+                        done();
+                    });
+            });
+        });
         describe("getTopClients", () => {
             let databaseUtilStub: sinon.SinonStub;
             beforeEach(() => {
@@ -324,6 +398,100 @@ describe('src/helper/pihole-database', () => {
                 const queryParams: any[] = [limit, client];
                 const db: testObject.PiholeDatabase = testObject.PiholeDatabase.getInstance();
                 db.getAdsHistory(limit, offset, client)
+                    .subscribe(mockNext, (err: Error) => {
+                        done(err);
+                    }, () => {
+                        expect(mockNext.callCount).to.equal(5);
+                        expect(mockNext.args).to.deep.equal([[1], [2], [3], [8], [9]]);
+                        expect(databaseUtilStub.callCount).to.equal(1);
+                        const args: any[] = databaseUtilStub.getCall(0).args;
+                        expect(args[0]).to.equal(sqliteDbStub);
+                        expect(args[1]).to.deep.equal(query);
+                        expect(args[2]).to.deep.equal(queryParams);
+                        //expect(databaseUtilStub.getCall(0).args).to.deep.equal([db, query, queryParams]);
+                        done();
+                    });
+            });
+        });
+        describe("getCombinedHistory", () => {
+            let databaseUtilStub: sinon.SinonStub;
+            beforeEach(() => {
+                databaseUtilStub = sinon.stub(DatabaseUtil, "listQuery");
+                databaseUtilStub.returns(of(1, 2, 3, 8, 9));
+            });
+            afterEach(() => {
+                databaseUtilStub.restore();
+            });
+            it('should use default values', (done) => {
+                const query: string = 'SELECT key, SUM(isAd) AS ads,COUNT(isAd) AS total  FROM (SELECT (timestamp / 60 * 60) AS key, (STATUS == 1 OR STATUS == 4) as isAd FROM queries ORDER BY key ASC) GROUP BY key ORDER BY key ASC';
+                const queryParams: any[] = [];
+                const db: testObject.PiholeDatabase = testObject.PiholeDatabase.getInstance();
+                db.getCombinedHistory()
+                    .subscribe(mockNext, (err: Error) => {
+                        done(err);
+                    }, () => {
+                        expect(mockNext.callCount).to.equal(5);
+                        expect(mockNext.args).to.deep.equal([[1], [2], [3], [8], [9]]);
+                        expect(databaseUtilStub.callCount).to.equal(1);
+                        const args: any[] = databaseUtilStub.getCall(0).args;
+                        expect(args[0]).to.equal(sqliteDbStub);
+                        expect(args[1]).to.deep.equal(query);
+                        expect(args[2]).to.deep.equal(queryParams);
+                        //expect(databaseUtilStub.getCall(0).args).to.deep.equal([db, query, queryParams]);
+                        done();
+                    });
+            });
+            it('should use no client', (done) => {
+                const query: string = 'SELECT key, SUM(isAd) AS ads,COUNT(isAd) AS total  FROM (SELECT (timestamp / 60 * 60) AS key, (STATUS == 1 OR STATUS == 4) as isAd FROM queries AND timestamp >= ? AND timestamp <= ? ORDER BY key ASC) GROUP BY key ORDER BY key ASC';
+                const from: number = 250;
+                const toValue: number = 234;
+                const queryParams: any[] = [from, toValue];
+                const db: testObject.PiholeDatabase = testObject.PiholeDatabase.getInstance();
+                db.getCombinedHistory(from, toValue)
+                    .subscribe(mockNext, (err: Error) => {
+                        done(err);
+                    }, () => {
+                        expect(mockNext.callCount).to.equal(5);
+                        expect(mockNext.args).to.deep.equal([[1], [2], [3], [8], [9]]);
+                        expect(databaseUtilStub.callCount).to.equal(1);
+                        const args: any[] = databaseUtilStub.getCall(0).args;
+                        expect(args[0]).to.equal(sqliteDbStub);
+                        expect(args[1]).to.deep.equal(query);
+                        expect(args[2]).to.deep.equal(queryParams);
+                        //expect(databaseUtilStub.getCall(0).args).to.deep.equal([db, query, queryParams]);
+                        done();
+                    });
+            });
+            it('should use client', (done) => {
+                const query: string = 'SELECT key, SUM(isAd) AS ads,COUNT(isAd) AS total  FROM (SELECT (timestamp / 60 * 60) AS key, (STATUS == 1 OR STATUS == 4) as isAd FROM queries AND timestamp >= ? AND timestamp <= ? AND client == ? ORDER BY key ASC) GROUP BY key ORDER BY key ASC';
+                const limit: number = 250;
+                const offset: number = 234;
+                const client: string = "anyclient";
+                const queryParams: any[] = [limit, offset, client];
+                const db: testObject.PiholeDatabase = testObject.PiholeDatabase.getInstance();
+                db.getCombinedHistory(limit, offset, client)
+                    .subscribe(mockNext, (err: Error) => {
+                        done(err);
+                    }, () => {
+                        expect(mockNext.callCount).to.equal(5);
+                        expect(mockNext.args).to.deep.equal([[1], [2], [3], [8], [9]]);
+                        expect(databaseUtilStub.callCount).to.equal(1);
+                        const args: any[] = databaseUtilStub.getCall(0).args;
+                        expect(args[0]).to.equal(sqliteDbStub);
+                        expect(args[1]).to.deep.equal(query);
+                        expect(args[2]).to.deep.equal(queryParams);
+                        //expect(databaseUtilStub.getCall(0).args).to.deep.equal([db, query, queryParams]);
+                        done();
+                    });
+            });
+            it('should use all parameter except to', (done) => {
+                const query: string = 'SELECT key, SUM(isAd) AS ads,COUNT(isAd) AS total  FROM (SELECT (timestamp / 60 * 60) AS key, (STATUS == 1 OR STATUS == 4) as isAd FROM queries AND timestamp >= ? AND client == ? ORDER BY key ASC) GROUP BY key ORDER BY key ASC';
+                const limit: number = 250;
+                const offset: number = undefined;
+                const client: string = "anyclient";
+                const queryParams: any[] = [limit, client];
+                const db: testObject.PiholeDatabase = testObject.PiholeDatabase.getInstance();
+                db.getCombinedHistory(limit, offset, client)
                     .subscribe(mockNext, (err: Error) => {
                         done(err);
                     }, () => {
