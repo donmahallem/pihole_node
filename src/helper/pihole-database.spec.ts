@@ -36,7 +36,7 @@ describe('src/helper/pihole-database', () => {
 
         after(() => {
             sqliteCacheStub.restore();
-        })
+        });
         describe("getTopClients", () => {
             let databaseUtilStub: sinon.SinonStub;
             beforeEach(() => {
@@ -66,7 +66,7 @@ describe('src/helper/pihole-database', () => {
                         expect(args[2]).to.deep.equal(queryParams);
                         //expect(databaseUtilStub.getCall(0).args).to.deep.equal([db, query, queryParams]);
                         done();
-                    })
+                    });
             });
             it('should pass with default arguments', (done) => {
                 const query: string = 'SELECT client, count(client) as num FROM queries'
@@ -88,7 +88,84 @@ describe('src/helper/pihole-database', () => {
                         expect(args[2]).to.deep.equal(queryParams);
                         //expect(databaseUtilStub.getCall(0).args).to.deep.equal([db, query, queryParams]);
                         done();
-                    })
+                    });
+            });
+        });
+        describe("getTopDomains", () => {
+            let databaseUtilStub: sinon.SinonStub;
+            beforeEach(() => {
+                databaseUtilStub = sinon.stub(DatabaseUtil, "listQuery");
+                databaseUtilStub.returns(of(1, 2, 3, 8, 9));
+            });
+            afterEach(() => {
+                databaseUtilStub.restore();
+            });
+            it('should use default values', (done) => {
+                const query: string = 'SELECT domain,count(domain) as num FROM queries'
+                    + ' GROUP by domain order by count(domain) desc limit ? OFFSET ?';
+                const limit: number = 25;
+                const offset: number = 0;
+                const queryParams: any[] = [limit, offset];
+                const db: testObject.PiholeDatabase = testObject.PiholeDatabase.getInstance();
+                db.getTopDomains()
+                    .subscribe(mockNext, (err: Error) => {
+                        done(err);
+                    }, () => {
+                        expect(mockNext.callCount).to.equal(5);
+                        expect(mockNext.args).to.deep.equal([[1], [2], [3], [8], [9]]);
+                        expect(databaseUtilStub.callCount).to.equal(1);
+                        const args: any[] = databaseUtilStub.getCall(0).args;
+                        expect(args[0]).to.equal(sqliteDbStub);
+                        expect(args[1]).to.deep.equal(query);
+                        expect(args[2]).to.deep.equal(queryParams);
+                        //expect(databaseUtilStub.getCall(0).args).to.deep.equal([db, query, queryParams]);
+                        done();
+                    });
+            });
+            it('should use no client', (done) => {
+                const query: string = 'SELECT domain,count(domain) as num FROM queries'
+                    + ' GROUP by domain order by count(domain) desc limit ? OFFSET ?';
+                const limit: number = 250;
+                const offset: number = 234;
+                const queryParams: any[] = [limit, offset];
+                const db: testObject.PiholeDatabase = testObject.PiholeDatabase.getInstance();
+                db.getTopDomains(limit, offset)
+                    .subscribe(mockNext, (err: Error) => {
+                        done(err);
+                    }, () => {
+                        expect(mockNext.callCount).to.equal(5);
+                        expect(mockNext.args).to.deep.equal([[1], [2], [3], [8], [9]]);
+                        expect(databaseUtilStub.callCount).to.equal(1);
+                        const args: any[] = databaseUtilStub.getCall(0).args;
+                        expect(args[0]).to.equal(sqliteDbStub);
+                        expect(args[1]).to.deep.equal(query);
+                        expect(args[2]).to.deep.equal(queryParams);
+                        //expect(databaseUtilStub.getCall(0).args).to.deep.equal([db, query, queryParams]);
+                        done();
+                    });
+            });
+            it('should use client', (done) => {
+                const query: string = 'SELECT domain,count(domain) as num FROM queries'
+                    + ' WHERE (client == ?) GROUP by domain order by count(domain) desc limit ? OFFSET ?';
+                const limit: number = 250;
+                const offset: number = 234;
+                const client: string = "anyclient";
+                const queryParams: any[] = [client, limit, offset];
+                const db: testObject.PiholeDatabase = testObject.PiholeDatabase.getInstance();
+                db.getTopDomains(limit, offset, client)
+                    .subscribe(mockNext, (err: Error) => {
+                        done(err);
+                    }, () => {
+                        expect(mockNext.callCount).to.equal(5);
+                        expect(mockNext.args).to.deep.equal([[1], [2], [3], [8], [9]]);
+                        expect(databaseUtilStub.callCount).to.equal(1);
+                        const args: any[] = databaseUtilStub.getCall(0).args;
+                        expect(args[0]).to.equal(sqliteDbStub);
+                        expect(args[1]).to.deep.equal(query);
+                        expect(args[2]).to.deep.equal(queryParams);
+                        //expect(databaseUtilStub.getCall(0).args).to.deep.equal([db, query, queryParams]);
+                        done();
+                    });
             });
         });
     });
