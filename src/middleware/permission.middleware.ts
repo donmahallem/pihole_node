@@ -36,7 +36,7 @@ export const createAuthorizationMiddleware = (): express.RequestHandler => {
             req.user = createUnauthorizedUser();
             next();
         }
-    }
+    };
 };
 
 export const createPermissionMiddleware = (permissions: UserPermission[]): express.RequestHandler => {
@@ -46,5 +46,5 @@ export const createPermissionMiddleware = (permissions: UserPermission[]): expre
         } else {
             next();
         }
-    }
+    };
 };
