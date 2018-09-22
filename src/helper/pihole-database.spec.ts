@@ -46,7 +46,7 @@ describe('src/helper/pihole-database', () => {
             afterEach(() => {
                 databaseUtilStub.restore();
             });
-            it('should pass without query arguments', (done) => {
+            it('should pass with provided arguments', (done) => {
                 const query: string = 'SELECT client, count(client) as num FROM queries'
                     + ' GROUP by client order by count(client) desc limit ? OFFSET ?';
                 const limit: number = 200;
@@ -54,6 +54,28 @@ describe('src/helper/pihole-database', () => {
                 const queryParams: any[] = [limit, offset];
                 const db: testObject.PiholeDatabase = testObject.PiholeDatabase.getInstance();
                 db.getTopClients(limit, offset)
+                    .subscribe(mockNext, (err: Error) => {
+                        done(err);
+                    }, () => {
+                        expect(mockNext.callCount).to.equal(5);
+                        expect(mockNext.args).to.deep.equal([[1], [2], [3], [8], [9]]);
+                        expect(databaseUtilStub.callCount).to.equal(1);
+                        const args: any[] = databaseUtilStub.getCall(0).args;
+                        expect(args[0]).to.equal(sqliteDbStub);
+                        expect(args[1]).to.deep.equal(query);
+                        expect(args[2]).to.deep.equal(queryParams);
+                        //expect(databaseUtilStub.getCall(0).args).to.deep.equal([db, query, queryParams]);
+                        done();
+                    })
+            });
+            it('should pass with default arguments', (done) => {
+                const query: string = 'SELECT client, count(client) as num FROM queries'
+                    + ' GROUP by client order by count(client) desc limit ? OFFSET ?';
+                const limit: number = 25;
+                const offset: number = 0;
+                const queryParams: any[] = [limit, offset];
+                const db: testObject.PiholeDatabase = testObject.PiholeDatabase.getInstance();
+                db.getTopClients()
                     .subscribe(mockNext, (err: Error) => {
                         done(err);
                     }, () => {
