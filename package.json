@@ -28,7 +28,7 @@
         "moment": "^2.22.2",
         "rxjs": "^6.3.2",
         "sqlite3": "^4.0.2",
-        "tail": "^1.4.0"
+        "tail": "^2.0.0"
     },
     "devDependencies": {
         "@types/chai": "^4.1.5",
