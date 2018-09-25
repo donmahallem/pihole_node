@@ -50,7 +50,6 @@ export class FTLUtil {
         const floatRegex: RegExp = /^[0-9]+\.[0-9]*$/;
         return this.sendRequest('>stats', host, port)
             .pipe(map((item: string) => {
-                console.log(item);
                 if (item !== undefined) {
                     return item.trim();
                 }

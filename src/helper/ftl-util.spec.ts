@@ -79,9 +79,8 @@ describe('src/helper/ftl-util', () => {
                 testObject.FTLUtil.getStats()
                     .subscribe((dat) => {
                         expect(dat).to.deep.equal(testDataResult);
-                        console.log("aa", dat);
+                        expect(stubSendRequest.callCount).to.equal(1);
                     }, (err) => {
-                        console.error(err);
                         done(err);
                     }, () => {
                         done();
