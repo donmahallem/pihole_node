@@ -49,15 +49,14 @@ export class FTLUtil {
         const intRegex: RegExp = /^[0-9]+$/;
         const floatRegex: RegExp = /^[0-9]+\.[0-9]*$/;
         return this.sendRequest('>stats', host, port)
-            .pipe(map((item: string) => {
-                if (item !== undefined) {
-                    return item.trim();
+            .pipe(filter((item: string): boolean => {
+                if (item === undefined) {
+                    return false;
                 }
-            }), filter((item: string): boolean => {
                 const a: RegExp = /^[a-zA-Z\_]+ ([0-9\.]+|enabled|disabled)$/;
                 return a.test(item);
             }), map((item: string) => {
-                const parts: any = item.split(' ');
+                const parts: any = item.trim().split(' ');
                 return parts;
             }), filter((values: string[]) => {
                 return values.length === 2;

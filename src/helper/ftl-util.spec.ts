@@ -44,6 +44,7 @@ describe('src/helper/ftl-util', () => {
                 "reply_CNAME 190",
                 "reply_IP 429",
                 "status enabled",
+                undefined,
                 "---EOM---"];
             const testDataResult: any = {
                 "domains_being_blocked": 130560,
