@@ -71,7 +71,7 @@ describe('src/helper/ftl-util', () => {
             afterEach(() => {
                 stubSendRequest.restore();
             });
-            it('should pass and encrypt password with default parameter', (done) => {
+            it('should get and transform the data correctly for a list', (done) => {
 
                 stubSendRequest.callsFake(() => {
                     return rxjs.from(testData);
@@ -79,6 +79,23 @@ describe('src/helper/ftl-util', () => {
                 testObject.FTLUtil.getStats()
                     .subscribe((dat) => {
                         expect(dat).to.deep.equal(testDataResult);
+                        expect(stubSendRequest.callCount).to.equal(1);
+                    }, (err) => {
+                        done(err);
+                    }, () => {
+                        done();
+                    })
+            });
+            it('should get and transform the data correctly for a single item', (done) => {
+
+                stubSendRequest.callsFake(() => {
+                    return rxjs.from(["test 129"]);
+                });
+                testObject.FTLUtil.getStats()
+                    .subscribe((dat) => {
+                        expect(dat).to.deep.equal({
+                            test: 129
+                        });
                         expect(stubSendRequest.callCount).to.equal(1);
                     }, (err) => {
                         done(err);

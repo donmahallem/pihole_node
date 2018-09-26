@@ -67,17 +67,11 @@ export class FTLUtil {
                 } else if (floatRegex.test(values[1])) {
                     values[1] = parseFloat(values[1]);
                 }
-                return values;
-            }), reduce((acc: any, item: any[]) => {
-                if (Array.isArray(acc)) {
-                    const obj: any = {};
-                    obj[acc[0]] = acc[1];
-                    obj[item[0]] = item[1];
-                    return obj;
-                } else {
-                    acc[item[0]] = item[1];
-                    return acc;
-                }
+                const obj = {};
+                obj[values[0]] = values[1];
+                return obj;
+            }), reduce((acc: any, item: any, idx) => {
+                return { ...acc, ...item };
             }));
     }
 }
