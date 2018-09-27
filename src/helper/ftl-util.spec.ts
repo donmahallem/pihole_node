@@ -13,19 +13,61 @@ import {
 import * as bcrypt from "bcrypt";
 import * as rxjsOperator from "rxjs/operators";
 import * as rxjs from 'rxjs';
+import * as netPackage from 'net';
+import { EventEmitter } from "events";
 
 describe('src/helper/ftl-util', () => {
 
     describe("FTLUtil", () => {
 
-        var ftlUtilInstance: testObject.FTLUtil;
         beforeEach(() => {
-            ftlUtilInstance = new testObject.FTLUtil();
         });
 
         afterEach(() => {
         });
 
+        describe("sendRequest", () => {
+
+            let socketInstance: sinon.SinonStub;
+            let socketStubInstance: sinon.SinonStubbedInstance<netPackage.Socket>;
+            let nextSpy: sinon.SinonSpy;
+            before(() => {
+                socketInstance = sinon.stub(netPackage, "Socket").callsFake(() => {
+                    return socketStubInstance;
+                });
+                nextSpy = sinon.spy();
+            });
+            beforeEach(() => {
+                socketStubInstance = <any>sinon.createStubInstance(netPackage.Socket);
+                //for some reason the stubedinstance doesnt provide ANY method
+                socketStubInstance.on = <any>sinon.stub();
+                socketStubInstance.connect = <any>sinon.stub();
+                console.log(socketStubInstance);
+            });
+            afterEach(() => {
+                socketInstance.resetHistory();
+                nextSpy.resetHistory();
+            });
+            after(() => {
+                socketInstance.restore();
+            });
+            it('should get and transform the data correctly for a list', function (done) {
+                testObject.FTLUtil.sendRequest("JJ").subscribe(nextSpy, done, () => {
+                    socketInstance.calledWith("error");
+                    done();
+                });
+                this.timeout(1000);
+                expect(socketStubInstance.on.callCount).to.equal(4);
+                expect(socketStubInstance.on.getCall(1).args[0]).to.equal("data");
+                let dataCallback: any = socketStubInstance.on.getCall(1).args[1];
+                dataCallback("a");
+                dataCallback("b");
+                expect(socketStubInstance.on.getCall(2).args[0]).to.equal("close");
+                let completeCallback: any = socketStubInstance.on.getCall(2).args[1];
+                completeCallback();
+
+            });
+        });
         describe("getStats", () => {
 
             const testData: string[] = ["domains_being_blocked 130560",
