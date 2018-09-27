@@ -70,10 +70,11 @@ describe('src/helper/ftl-util', () => {
             });
             it('should send no data or finish event if closed', function (done) {
                 const testError: Error = new Error("test error");
-                const subscription: rxjs.Subscription = testObject.FTLUtil.sendRequest("JJ").subscribe(nextSpy, () => {
+                const subscription: rxjs.Subscription = testObject.FTLUtil.sendRequest("JJ").subscribe(nextSpy, (error) => {
                     expect(nextSpy.callCount).to.equal(2);
                     expect(nextSpy.calledWithExactly("a")).to.be.true;
                     expect(nextSpy.calledWithExactly("b")).to.be.true;
+                    expect(error).to.equal(testError);
                     socketInstance.calledWith("error");
                     done();
                 }, () => {
@@ -92,6 +93,32 @@ describe('src/helper/ftl-util', () => {
                 expect(socketStubInstance.on.getCall(2).args[0]).to.equal("close");
                 let completeCallback: any = socketStubInstance.on.getCall(2).args[1];
                 completeCallback();
+            });
+            it('should send no data or throw more than one error', function (done) {
+                const testError: Error = new Error("test error");
+                const errorSpy: sinon.SinonSpy = sinon.spy();
+                const doneSpy: sinon.SinonSpy = sinon.spy();
+                const subscription: rxjs.Subscription = testObject.FTLUtil.sendRequest("JJ").subscribe(nextSpy, errorSpy, doneSpy);
+                expect(socketStubInstance.on.callCount).to.equal(4);
+                expect(socketStubInstance.on.getCall(1).args[0]).to.equal("data");
+                let dataCallback: any = socketStubInstance.on.getCall(1).args[1];
+                expect(socketStubInstance.on.getCall(0).args[0]).to.equal("error");
+                let errorCallback: any = socketStubInstance.on.getCall(0).args[1];
+                dataCallback("a");
+                dataCallback("b");
+                errorCallback(testError);
+                errorCallback(testError);
+                dataCallback("c");
+                expect(socketStubInstance.on.getCall(2).args[0]).to.equal("close");
+                let completeCallback: any = socketStubInstance.on.getCall(2).args[1];
+                completeCallback();
+                this.timeout(500);
+                expect(errorSpy.callCount).to.equal(1);
+                expect(doneSpy.callCount).to.equal(0);
+                expect(nextSpy.callCount).to.equal(2);
+                expect(nextSpy.calledWithExactly("a")).to.be.true;
+                expect(nextSpy.calledWithExactly("b")).to.be.true;
+                done();
             });
         });
         describe("getStats", () => {
