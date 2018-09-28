@@ -42,6 +42,7 @@ describe('src/helper/ftl-util', () => {
                 //for some reason the stubedinstance doesnt provide ANY method
                 socketStubInstance.on = <any>sinon.stub();
                 socketStubInstance.connect = <any>sinon.stub();
+                socketStubInstance.end = <any>sinon.stub();
             });
             afterEach(() => {
                 socketInstance.resetHistory();
@@ -118,6 +119,20 @@ describe('src/helper/ftl-util', () => {
                 expect(nextSpy.callCount).to.equal(2);
                 expect(nextSpy.calledWithExactly("a")).to.be.true;
                 expect(nextSpy.calledWithExactly("b")).to.be.true;
+                done();
+            });
+            it('should send data to server', function (done) {
+                const testError: Error = new Error("test error");
+                const errorSpy: sinon.SinonSpy = sinon.spy();
+                const doneSpy: sinon.SinonSpy = sinon.spy();
+                const subscription: rxjs.Subscription = testObject.FTLUtil.sendRequest("JJ").subscribe(nextSpy, errorSpy, doneSpy);
+                expect(socketStubInstance.on.callCount).to.equal(4);
+                expect(socketStubInstance.on.getCall(3).args[0]).to.equal("connect");
+                let connectCallback: any = socketStubInstance.on.getCall(3).args[1];
+                connectCallback();
+                this.timeout(500);
+                expect(socketStubInstance.end.callCount).to.equal(1);
+                expect(socketStubInstance.end.getCall(0).args).to.deep.equal(["JJ"]);
                 done();
             });
         });
