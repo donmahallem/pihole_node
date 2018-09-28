@@ -44,6 +44,8 @@ export class UserDatabase {
             "username TEXT UNIQUE," +
             "password TEXT," +
             "padmin INTEGER)", (err) => {
+                // TODO:  Fix at some point
+                console.error(err);
             });
     }
 
