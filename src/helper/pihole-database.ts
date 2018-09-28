@@ -28,7 +28,6 @@ export interface IQuery {
 export class PiholeDatabase {
 
     private static mInstance: PiholeDatabase;
-    private database: sqlite.Database;
 
     public static getInstance(): PiholeDatabase {
         if (this.mInstance) {
@@ -38,6 +37,8 @@ export class PiholeDatabase {
             return this.mInstance;
         }
     }
+
+    private database: sqlite.Database;
 
     private constructor() {
         this.database = sqlite.cached.Database('pihole-FTL.db');
