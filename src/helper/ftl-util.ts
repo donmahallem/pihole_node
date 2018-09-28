@@ -12,7 +12,9 @@ import {
 } from 'rxjs/operators';
 
 export class FTLUtil {
-
+    /**
+     * sends a request to an telnet socket
+     */
     public static sendRequest(req: string, host: string = 'localhost', port: number = 4711): Observable<any> {
         return Observable.create((pub: Observer<any>) => {
 
@@ -27,7 +29,7 @@ export class FTLUtil {
                 if (pub.closed) {
                     return;
                 }
-                pub.next(data.toString("utf-8"));
+                pub.next(data.toString('utf-8'));
             });
 
             client.on('close', () => {

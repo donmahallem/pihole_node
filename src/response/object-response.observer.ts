@@ -1,10 +1,7 @@
 import { Observer } from 'rxjs';
-import * as express from 'express';
-import { RouteError } from '../routes/route-error';
+import { Request, Response, NextFunction } from 'express';
 
-export const createObjectResponseObserver = (req: express.Request,
-    res: express.Response,
-    next: express.NextFunction): Observer<any> => {
+export const createObjectResponseObserver = (req: Request, res: Response, next: NextFunction): Observer<any> => {
     let sendObject: any;
     return {
         next: (value: any) => {
