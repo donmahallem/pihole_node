@@ -14,7 +14,7 @@ import { PiholeDatabase } from "../../helper/pihole-database";
  * @exports apiRouter
  */
 export const createTopRouter = (): express.Router => {
-    let router = express.Router();
+    const router = express.Router();
 
     const db: PiholeDatabase = PiholeDatabase.getInstance();
 
@@ -23,4 +23,4 @@ export const createTopRouter = (): express.Router => {
     subRouter.get("/clients", createTopClientsEndpoint(db));
     subRouter.get("/ads", createTopAdsEndpoint(db));
     return router;
-}
+};

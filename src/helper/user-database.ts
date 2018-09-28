@@ -44,6 +44,7 @@ export class UserDatabase {
             "username TEXT UNIQUE," +
             "password TEXT," +
             "padmin INTEGER)", (err) => {
+                // TODO:  Fix at some point
                 console.error(err);
             });
     }
@@ -64,7 +65,6 @@ export class UserDatabase {
         const sqlStatement: string = "SELECT * FROM users;";
         return DatabaseUtil.prepareStatement(this.database, sqlStatement)
             .pipe(mergeMap((stat: sqlite.Statement) => {
-                console.log(stat);
                 return DatabaseUtil.statementToList(stat);
             }));
     }

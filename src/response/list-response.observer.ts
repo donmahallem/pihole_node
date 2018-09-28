@@ -1,13 +1,13 @@
-import { Observer } from "rxjs";
-import * as express from "express";
+import { Observer } from 'rxjs';
+import * as express from 'express';
 
 export const createListResponseObserver = (req: express.Request, res: express.Response, next: express.NextFunction): Observer<any> => {
     let firstItemSent = false;
     const initData = (res: express.Response) => {
         if (!res.headersSent) {
-            res.setHeader("Content-Type", "application/json");
+            res.setHeader('Content-Type', 'application/json');
         }
-        res.write("{\"data\":[");
+        res.write('{\"data\":[');
         firstItemSent = true;
     };
     return {
@@ -15,7 +15,7 @@ export const createListResponseObserver = (req: express.Request, res: express.Re
             if (!firstItemSent) {
                 initData(res);
             } else {
-                res.write(",");
+                res.write(',');
             }
             res.write(JSON.stringify(value));
         },
@@ -26,8 +26,8 @@ export const createListResponseObserver = (req: express.Request, res: express.Re
             if (!firstItemSent) {
                 initData(res);
             }
-            res.write("]}");
+            res.write(']}');
             res.end();
         }
-    }
-}
+    };
+};
