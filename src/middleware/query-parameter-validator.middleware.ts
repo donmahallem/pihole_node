@@ -1,6 +1,6 @@
-/// <reference path="../extensions.d.ts" />
-import * as express from "express";
-import { RouteError } from "../routes/route-error";
+/// <reference path='../extensions.d.ts' />
+import * as express from 'express';
+import { RouteError } from '../routes/route-error';
 import {
     Schema,
     validate,
@@ -8,13 +8,13 @@ import {
     Options,
     SchemaContext,
     RewriteFunction
-} from "jsonschema";
+} from 'jsonschema';
 
 export const rewriteDefaultValue: RewriteFunction = (instance: any, schema: Schema, options: Options, ctx: SchemaContext): any => {
     if (schema.defaultValue && instance === undefined) {
         return schema.defaultValue;
     } else {
-        if (schema.type === "integer") {
+        if (schema.type === 'integer') {
             return parseInt(instance);
         }
         return instance;
@@ -38,7 +38,7 @@ export const queryParameterValidator = (param: Schema): express.RequestHandler =
             req.query = result.instance;
             next();
         } else {
-            next(new RouteError(401, result.errors[0].property + " - " + result.errors[0].message));
+            next(new RouteError(401, result.errors[0].property + ' - ' + result.errors[0].message));
         }
     }
 }

@@ -1,6 +1,6 @@
-import { Observer } from "rxjs";
-import * as express from "express";
-import { RouteError } from "../routes/route-error";
+import { Observer } from 'rxjs';
+import * as express from 'express';
+import { RouteError } from '../routes/route-error';
 
 export const createObjectResponseObserver = (req: express.Request, res: express.Response, next: express.NextFunction): Observer<any> => {
     let sendObject: any;
@@ -13,16 +13,16 @@ export const createObjectResponseObserver = (req: express.Request, res: express.
         },
         complete: () => {
             if (!res.headersSent) {
-                res.setHeader("Content-Type", "application/json");
+                res.setHeader('Content-Type', 'application/json');
             }
-            res.write("{\"data\":");
+            res.write('{\"data\":');
             if (sendObject) {
                 res.write(JSON.stringify(sendObject));
             } else {
-                res.write("null");
+                res.write('null');
             }
-            res.write("}");
+            res.write('}');
             res.end();
         }
-    }
-}
+    };
+};
