@@ -1,10 +1,10 @@
-import * as express from "express";
+import * as express from 'express';
 import {
     ParseLimitQueryParameter,
     ParseFromToQueryParameter
-} from "../../helper/query-param-tools";
-import { createListResponseObserver } from "../../response/list-response.observer";
-import { UserDatabase } from "../../helper/user-database";
+} from '../../helper/query-param-tools';
+import { createListResponseObserver } from '../../response/list-response.observer';
+import { UserDatabase } from '../../helper/user-database';
 
 export const createListUsersEndpoint = (database: UserDatabase): express.RequestHandler => {
     return (req: express.Request, res: express.Response, next: express.NextFunction): void => {

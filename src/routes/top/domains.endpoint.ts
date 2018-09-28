@@ -1,11 +1,11 @@
-import * as express from "express";
-import { RouteError } from "../route-error";
-import { PiholeDatabase } from "../../helper/pihole-database";
+import * as express from 'express';
+import { RouteError } from '../route-error';
+import { PiholeDatabase } from '../../helper/pihole-database';
 import {
     ParseLimitQueryParameter,
     ParseFromToQueryParameter
-} from "../../helper/query-param-tools";
-import { createListResponseObserver } from "../../response/list-response.observer";
+} from '../../helper/query-param-tools';
+import { createListResponseObserver } from '../../response/list-response.observer';
 
 /**
  * @api {get} /api/data Get topItems
@@ -40,10 +40,10 @@ export const createTopDomainsEndpoint = (database: PiholeDatabase): express.Requ
         let queryLimit: number = 25;
         let queryOffset: number = 0;
         if (req.query.limit) {
-            queryLimit = parseInt(req.query.limit);
+            queryLimit = parseInt(req.query.limit, 10);
         }
         if (req.query.offset) {
-            queryOffset = parseInt(req.query.offset);
+            queryOffset = parseInt(req.query.offset, 10);
         }
         if (req.query.client) {
             database.getTopDomains(queryLimit, queryOffset, req.query.client)
@@ -53,7 +53,7 @@ export const createTopDomainsEndpoint = (database: PiholeDatabase): express.Requ
                 .subscribe(createListResponseObserver(req, res, next));
         }
     };
-}
+};
 
 /*
 router
