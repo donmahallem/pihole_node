@@ -62,40 +62,10 @@ import * as SummaryRoute from './summary/route';
  */
 const router = express.Router();
 
-const supportedDataQueries = {
-    'summary': {
-        'authRequired': false
-    },
-    'overTimeData': {
-        'authRequired': false
-    },
-    'topItems': {
-        'authRequired': true
-    },
-    'recentItems': {
-        'authRequired': true
-    },
-    'queryTypes': {
-        'authRequired': true
-    },
-    'forwardDestinations': {
-        'authRequired': true
-    },
-    'allQueries': {
-        'authRequired': true
-    },
-    'querySources': {
-        'authRequired': true
-    }
-};
-
-
 router.use(function (req, res, next) {
     res.setHeader('Content-Type', 'application/json');
     next();
 });
-
-
 
 /**
  * @api {get} /api/data/queryTypes Get Querytypes
@@ -180,7 +150,6 @@ router.get('/data/summary', Api.getSummary);
  */
 router.get('/data/forwardDestinations',
     Api.getForwardDestinations);
-
 
 /**
  * @api {get} /log?type=... Get Log
