@@ -1,7 +1,7 @@
-import * as express from "express";
+import * as express from 'express';
 import {
     createSummaryEndpoint
-} from "./summary.endpoint";
+} from './summary.endpoint';
 
 /**
  * The router for the api endpoints
@@ -9,6 +9,6 @@ import {
  */
 export const createSummaryRouter = (): express.Router => {
     const router: express.Router = express.Router();
-    router.get("/", createSummaryEndpoint());
+    router.get('/', createSummaryEndpoint());
     return router;
 };

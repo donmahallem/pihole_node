@@ -1,11 +1,11 @@
 /*eslint no-console: ["error", { allow: ["warn", "error", "log"] }] */
 
-import * as express from "express";
-import { Api } from "./api";
-import * as TopRoutes from "./top/route";
-import { UserRouter } from "./user/route";
-import * as HistoryRoutes from "./history/route";
-import * as SummaryRoute from "./summary/route";
+import * as express from 'express';
+import { Api } from './api';
+import * as TopRoutes from './top/route';
+import { UserRouter } from './user/route';
+import * as HistoryRoutes from './history/route';
+import * as SummaryRoute from './summary/route';
 
 /**
  * @apiDefine NotAuthorized
@@ -60,38 +60,38 @@ import * as SummaryRoute from "./summary/route";
  * The router for the api endpoints
  * @exports apiRouter
  */
-let router = express.Router();
+const router = express.Router();
 
 const supportedDataQueries = {
-    "summary": {
-        "authRequired": false
+    'summary': {
+        'authRequired': false
     },
-    "overTimeData": {
-        "authRequired": false
+    'overTimeData': {
+        'authRequired': false
     },
-    "topItems": {
-        "authRequired": true
+    'topItems': {
+        'authRequired': true
     },
-    "recentItems": {
-        "authRequired": true
+    'recentItems': {
+        'authRequired': true
     },
-    "queryTypes": {
-        "authRequired": true
+    'queryTypes': {
+        'authRequired': true
     },
-    "forwardDestinations": {
-        "authRequired": true
+    'forwardDestinations': {
+        'authRequired': true
     },
-    "allQueries": {
-        "authRequired": true
+    'allQueries': {
+        'authRequired': true
     },
-    "querySources": {
-        "authRequired": true
+    'querySources': {
+        'authRequired': true
     }
 };
 
 
 router.use(function (req, res, next) {
-    res.setHeader("Content-Type", "application/json");
+    res.setHeader('Content-Type', 'application/json');
     next();
 });
 
@@ -124,7 +124,7 @@ router.use(function (req, res, next) {
  * @apiUse InvalidRequest
  * @apiUse NotAuthorized
  */
-router.get("/data/queryTypes", Api.getQueryTypes);
+router.get('/data/queryTypes', Api.getQueryTypes);
 
 /**
  * @api {get} /api/data/summary Get Summary
@@ -150,7 +150,7 @@ router.get("/data/queryTypes", Api.getQueryTypes);
  * @apiUse InvalidRequest
  * @apiUse NotAuthorized
  */
-router.get("/data/summary", Api.getSummary);
+router.get('/data/summary', Api.getSummary);
 /**
  * @api {get} /api/data/forwardDestinations Get forward Destinations
  * @apiName GetDataForwardDestinations
@@ -178,7 +178,7 @@ router.get("/data/summary", Api.getSummary);
  * @apiUse InvalidRequest
  * @apiUse NotAuthorized
  */
-router.get("/data/forwardDestinations",
+router.get('/data/forwardDestinations',
     Api.getForwardDestinations);
 
 
@@ -206,7 +206,7 @@ router.get("/data/forwardDestinations",
  * @apiUse InvalidRequest
  * @apiUse NotAuthorized
  */
-router.get("/history", Api.getHistory);
+router.get('/history', Api.getHistory);
 /**
  * @api {get} /api/data/overtimeData Get OverTimeData
  * @apiName GetDataOverTimeData
@@ -243,15 +243,15 @@ router.get("/history", Api.getHistory);
  * @apiUse InvalidRequest
  * @apiUse NotAuthorized
  */
-router.get("/data/overtimeData", Api.getOvertimeData);
+router.get('/data/overtimeData', Api.getOvertimeData);
 
-router.use("/top", TopRoutes.createTopRouter());
+router.use('/top', TopRoutes.createTopRouter());
 
-router.use("/user", UserRouter);
+router.use('/user', UserRouter);
 
-router.use("/history", HistoryRoutes);
+router.use('/history', HistoryRoutes);
 
-router.use("/summary", SummaryRoute.createSummaryRouter());
+router.use('/summary', SummaryRoute.createSummaryRouter());
 
 router.use(Api.catchError);
 
