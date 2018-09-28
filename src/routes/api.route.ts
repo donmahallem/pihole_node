@@ -251,7 +251,7 @@ router.use("/user", UserRouter);
 
 router.use("/history", HistoryRoutes);
 
-router.use("/summary", SummaryRoute);
+router.use("/summary", SummaryRoute.createSummaryRouter());
 
 router.use(Api.catchError);
 

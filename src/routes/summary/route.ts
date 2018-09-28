@@ -8,7 +8,7 @@ import {
  * @exports apiRouter
  */
 export const createSummaryRouter = (): express.Router => {
-    let router = express.Router();
+    let router: express.Router = express.Router();
     router.get("/", createSummaryEndpoint());
     return router;
 }
