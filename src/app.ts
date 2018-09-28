@@ -1,9 +1,8 @@
-import * as express from "express";
-import * as http from "http";
-import * as bodyParser from "body-parser";
-import * as serveStatic from "serve-static";
-import * as cookieParser from "cookie-parser";
-import * as apiRoute from "./routes/api.route";
+import * as express from 'express';
+import * as http from 'http';
+import * as bodyParser from 'body-parser';
+import * as serveStatic from 'serve-static';
+import * as apiRoute from './routes/api.route';
 
 
 /**
@@ -14,7 +13,7 @@ export class PiholeApp {
     private _port: number;
     private _started: boolean = false;;
     private http: http.Server;
-    public static componentName: string = "APPPC";
+    public static componentName: string = 'APPPC';
     /**
      * Creates a new PiholeApp Instance
      * @param port the port this app should run on
@@ -24,10 +23,10 @@ export class PiholeApp {
         this.app = express();
         this.http = http.createServer(this.app);
         this.app.use(bodyParser.json());
-        this.app.use("/static", serveStatic(__dirname + "/static"));
-        this.app.use("/api", apiRoute);
+        this.app.use('/static', serveStatic(__dirname + '/static'));
+        this.app.use('/api', apiRoute);
         this.app.use(function (err: any, req: express.Request, res: express.Response, next: express.NextFunction) {
-            console.log("Request errored", err);
+            console.log('Request errored', err);
         });
     }
 
@@ -46,7 +45,7 @@ export class PiholeApp {
         if (!this.started) {
             this._started = true;
             this.http.listen(this.port, () => {
-                console.log("Server listening on port " + this.port + "!");
+                console.log('Server listening on port ' + this.port + '!');
             });
         }
     }
