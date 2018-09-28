@@ -23,7 +23,7 @@ export interface IQuery {
     client: string;
     // Forward destination used for this query (only set if status == 2)
     forward?: string | undefined;
-};
+}
 
 export class PiholeDatabase {
 
@@ -134,4 +134,4 @@ export class PiholeDatabase {
             + innerQuery + ') GROUP BY key ORDER BY key ASC';
         return DatabaseUtil.listQuery(this.database, query, queryParams);
     }
-};
+}
