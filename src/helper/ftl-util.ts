@@ -16,7 +16,7 @@ export class FTLUtil {
     public static sendRequest(req: string, host: string = 'localhost', port: number = 4711): Observable<any> {
         return Observable.create((pub: Observer<any>) => {
 
-            var client = new Socket();
+            const client = new Socket();
             client.on('error', (err: Error) => {
                 if (pub.closed) {
                     return;
@@ -37,7 +37,6 @@ export class FTLUtil {
                 pub.complete();
             });
             client.on('connect', () => {
-                //client.write(req);
                 client.end(req);
             });
             client.connect(port, host);
@@ -62,7 +61,7 @@ export class FTLUtil {
                 return values.length === 2;
             }), map((values: any[]) => {
                 if (intRegex.test(values[1])) {
-                    values[1] = parseInt(values[1]);
+                    values[1] = parseInt(values[1], 10);
                 } else if (floatRegex.test(values[1])) {
                     values[1] = parseFloat(values[1]);
                 }
