@@ -16,7 +16,7 @@ import { DatabaseUtil } from './database-util';
 export interface DbUser {
     username?: string,
     password?: string
-};
+}
 
 export class UserDatabase {
 
@@ -39,7 +39,8 @@ export class UserDatabase {
     public setPassword(user: string, password: string): Observable<sqlite.Statement> {
         return this.createHashedPassword(password)
             .pipe(mergeMap((hash: string) => {
-                const sqlStatement: string = 'INSERT INTO users (username,password) VALUES(?,?) ON CONFLICT(username) DO UPDATE SET password=?;';
+                const sqlStatement: string = 'INSERT INTO users (username,password) VALUES(?,?) '
+                    + 'ON CONFLICT(username) DO UPDATE SET password=?;';
                 return DatabaseUtil.prepareStatement(this.database, sqlStatement, [user, password, password]);
             }));
     }
@@ -70,4 +71,4 @@ export class UserDatabase {
             }));
     }
 
-};
+}
