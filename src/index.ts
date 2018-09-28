@@ -1,5 +1,4 @@
-import { PiholeApp } from "./app";
-import { PiholeDatabase } from "./helper/pihole-database";
+import { PiholeApp } from './app';
 let app: PiholeApp = new PiholeApp(3000);
 
 app.start();

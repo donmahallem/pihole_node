@@ -8,30 +8,27 @@ import {
 } from 'rxjs/operators';
 import { DatabaseUtil } from './database-util';
 
-export interface Query {
-    //autoincrement ID for the table, only used by SQLite3, not by FTLDNS
+export interface IQuery {
+    // autoincrement ID for the table, only used by SQLite3, not by FTLDNS
     id: number;
-    //Unix timestamp when this query arrived at FTLDNS (used as index)
+    // Unix timestamp when this query arrived at FTLDNS (used as index)
     timestamp: number;
-    //Type of this query (see Supported query types)
+    // Type of this query (see Supported query types)
     type: number;
-    //How was this query handled by FTLDNS? (see Supported status types)
+    // How was this query handled by FTLDNS? (see Supported status types)
     status: number;
-    //Requested domain
+    // Requested domain
     domain: string;
-    //Requesting client (IP address)
+    // Requesting client (IP address)
     client: string;
-    //Forward destination used for this query (only set if status == 2)
+    // Forward destination used for this query (only set if status == 2)
     forward?: string | undefined;
-}
+};
 
 export class PiholeDatabase {
 
-    private database: sqlite.Database;
     private static mInstance: PiholeDatabase;
-    private constructor() {
-        this.database = sqlite.cached.Database('pihole-FTL.db');
-    }
+    private database: sqlite.Database;
 
     public static getInstance(): PiholeDatabase {
         if (this.mInstance) {
@@ -42,7 +39,11 @@ export class PiholeDatabase {
         }
     }
 
-    public getQueries(limit: number = 25, offset: number = 0, client?: string): Observable<Query> {
+    private constructor() {
+        this.database = sqlite.cached.Database('pihole-FTL.db');
+    }
+
+    public getQueries(limit: number = 25, offset: number = 0, client?: string): Observable<IQuery> {
         let innerQuery: string = '';
         const queryParams: any[] = [];
         if (client) {
@@ -133,4 +134,4 @@ export class PiholeDatabase {
             + innerQuery + ') GROUP BY key ORDER BY key ASC';
         return DatabaseUtil.listQuery(this.database, query, queryParams);
     }
-}
+};
