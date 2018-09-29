@@ -186,6 +186,23 @@ describe('src/helper/database-util', () => {
                 expect(args.length).to.equal(1);
                 args[0](testError);
             });
+            it('should only publish before closed is true', (done) => {
+                const testError: Error = new Error("test error");
+                const errorSpy: sinon.SinonSpy = sinon.spy();
+                const completeSpy: sinon.SinonSpy = sinon.spy();
+                testObject.DatabaseUtil.runStatement(stubInstance)
+                    .subscribe(mockNext, errorSpy, completeSpy);
+
+                expect(stubInstance.run.callCount).to.equal(1);
+                const args: any[] = stubInstance.run.getCall(0).args;
+                expect(args.length).to.equal(1);
+                args[0](testError);
+                args[0]();
+                expect(errorSpy.callCount).to.equal(1, "only one error is emitted");
+                expect(completeSpy.callCount).to.equal(0, "complete is called after close");
+                expect(errorSpy.getCall(0).args).to.deep.equal([testError]);
+                done();
+            });
         });
     });
 });

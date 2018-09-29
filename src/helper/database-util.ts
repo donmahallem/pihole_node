@@ -42,6 +42,7 @@ export class DatabaseUtil {
     }
     public static runStatement(stat: sqlite.Statement): Observable<any> {
         return Observable.create((pub: Observer<any>) => {
+            let finalized: boolean = false;
             stat.run(function (err: Error) {
                 if (pub.closed !== true) {
                     if (err) {
@@ -50,7 +51,10 @@ export class DatabaseUtil {
                         pub.complete();
                     }
                 }
-                stat.finalize();
+                if (!finalized) {
+                    stat.finalize();
+                    finalized = true;
+                }
             });
         });
     }
