@@ -64,7 +64,6 @@ describe('src/helper/database-util', () => {
                 stubInstance = sinon.createStubInstance(sqlite3.Statement);
             });
             afterEach(() => {
-                console.log("JJ");
                 expect(stubInstance.finalize.callCount).to.equal(1, "finalize should have been called every time once");
                 mockNext.resetHistory();
             })
@@ -138,6 +137,54 @@ describe('src/helper/database-util', () => {
                     }
                 }
                 args[1](testError);
+            });
+        });
+        describe('runStatement', () => {
+
+            let stubInstance: sinon.SinonStubbedInstance<sqlite3.Statement>;
+            let mockNext: sinon.SinonSpy;
+            before(() => {
+                mockNext = sinon.spy();
+            });
+            beforeEach(() => {
+                stubInstance = sinon.createStubInstance(sqlite3.Statement);
+            });
+            afterEach(() => {
+                expect(stubInstance.finalize.callCount).to.equal(1, "finalize should have been called every time once");
+                mockNext.resetHistory();
+            })
+            after(() => {
+
+            });
+            it('should pass', (done) => {
+                testObject.DatabaseUtil.runStatement(stubInstance)
+                    .subscribe(mockNext, (err) => {
+                        done(new Error("should not be called"));
+                    }, () => {
+                        expect(mockNext.callCount).to.equal(0);
+                        done();
+                    });
+
+                expect(stubInstance.run.callCount).to.equal(1);
+                const args: any[] = stubInstance.run.getCall(0).args;
+                expect(args.length).to.equal(1);
+                args[0]();
+            });
+            it('should not call complete if errored', (done) => {
+                const testError: Error = new Error("test error");
+                testObject.DatabaseUtil.runStatement(stubInstance)
+                    .subscribe(mockNext, (err) => {
+                        expect(err).to.equal(testError);
+                        expect(mockNext.callCount).to.equal(0);
+                        done();
+                    }, () => {
+                        done(new Error("should not be called"));
+                    });
+
+                expect(stubInstance.run.callCount).to.equal(1);
+                const args: any[] = stubInstance.run.getCall(0).args;
+                expect(args.length).to.equal(1);
+                args[0](testError);
             });
         });
     });

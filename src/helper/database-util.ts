@@ -42,11 +42,13 @@ export class DatabaseUtil {
     }
     public static runStatement(stat: sqlite.Statement): Observable<any> {
         return Observable.create((pub: Observer<any>) => {
-            stat.run(function (err: Error, count: number) {
-                if (err) {
-                    pub.error(err);
-                } else {
-                    pub.complete();
+            stat.run(function (err: Error) {
+                if (pub.closed !== true) {
+                    if (err) {
+                        pub.error(err);
+                    } else {
+                        pub.complete();
+                    }
                 }
                 stat.finalize();
             });
