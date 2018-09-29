@@ -11,7 +11,7 @@ import {
     RouteError
 } from "../routes/route-error";
 import * as sqlite3 from "sqlite3";
-import { Observable } from "rxjs";
+import * as rxjs from "rxjs";
 
 describe('src/helper/database-util', () => {
 
@@ -202,6 +202,47 @@ describe('src/helper/database-util', () => {
                 expect(completeSpy.callCount).to.equal(0, "complete is called after close");
                 expect(errorSpy.getCall(0).args).to.deep.equal([testError]);
                 done();
+            });
+        });
+
+        describe('runStatement', () => {
+            let prepareStatementStub: sinon.SinonStub;
+            let statementToListStub: sinon.SinonStub;
+            let mockNext: sinon.SinonSpy;
+            before(() => {
+                prepareStatementStub = sinon.stub(testObject.DatabaseUtil, "prepareStatement");
+                statementToListStub = sinon.stub(testObject.DatabaseUtil, "statementToList");
+                mockNext = sinon.spy();
+            });
+            beforeEach(() => {
+            });
+            afterEach(() => {
+                statementToListStub.reset();
+                prepareStatementStub.reset();
+                mockNext.resetHistory();
+            })
+            after(() => {
+                statementToListStub.restore();
+                prepareStatementStub.restore();
+            });
+            it('should pass', (done) => {
+                const testQuery: string = "select * from all";
+                const testQueryParams: any[] = ["jaj", 223, "jjja"];
+                const testDb: any = {};
+                const testStatement: any = "test statement instance";
+                prepareStatementStub.returns(rxjs.from([testStatement]));
+                statementToListStub.returns(rxjs.from(["a"]));
+                testObject.DatabaseUtil.listQuery(testDb, testQuery, testQueryParams)
+                    .subscribe(mockNext, (err) => {
+                        done(new Error("should not be called"));
+                    }, () => {
+                        expect(prepareStatementStub.callCount).to.equal(1);
+                        expect(statementToListStub.callCount).to.equal(1);
+                        expect(prepareStatementStub.getCall(0).args).to.deep.equal([testDb, testQuery, testQueryParams]);
+                        expect(statementToListStub.getCall(0).args).to.deep.equal([testStatement]);
+                        expect(mockNext.callCount).to.equal(1);
+                        done();
+                    });
             });
         });
     });
