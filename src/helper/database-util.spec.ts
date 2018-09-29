@@ -11,8 +11,9 @@ import {
     RouteError
 } from "../routes/route-error";
 import * as sqlite3 from "sqlite3";
+import { Observable } from "rxjs";
 
-describe('src/helper/pihole-database', () => {
+describe('src/helper/database-util', () => {
 
     describe("DatabaseUtil", () => {
         describe("prepareStatement", () => {
@@ -50,6 +51,93 @@ describe('src/helper/pihole-database', () => {
                         expect(databaseStub.serialize.callCount).to.equal(1);
                         done();
                     });
+            });
+        });
+        describe('statementToList', () => {
+
+            let stubInstance: sinon.SinonStubbedInstance<sqlite3.Statement>;
+            let mockNext: sinon.SinonSpy;
+            before(() => {
+                mockNext = sinon.spy();
+            });
+            beforeEach(() => {
+                stubInstance = sinon.createStubInstance(sqlite3.Statement);
+            });
+            afterEach(() => {
+                console.log("JJ");
+                expect(stubInstance.finalize.callCount).to.equal(1, "finalize should have been called every time once");
+                mockNext.resetHistory();
+            })
+            after(() => {
+
+            });
+            it('should pass', function (done) {
+                testObject.DatabaseUtil.statementToList(stubInstance)
+                    .subscribe(mockNext, (err) => {
+                        done(new Error("Should not have been called"));
+                    }, () => {
+                        expect(mockNext.callCount).to.equal(5, "next should have been called just once");
+                        for (let i = 0; i < 5; i++) {
+                            expect(mockNext.calledWith(i)).to.true;
+                        }
+                        done();
+                    });
+                expect(stubInstance.each.callCount).to.equal(1);
+                const args: any[] = stubInstance.each.getCall(0).args;
+                expect(args.length).to.equal(2);
+                for (let i = 0; i < 5; i++) {
+                    args[0](undefined, i);
+                }
+                args[1](undefined, 5);
+            });
+            it('should only pass items until error occured in complete', function (done) {
+                const testError: Error = new Error("test error");
+                testObject.DatabaseUtil.statementToList(stubInstance)
+                    .subscribe(mockNext, (err) => {
+                        expect(err).to.equal(testError);
+                        expect(mockNext.callCount).to.equal(5, "next should have been called just once");
+                        for (let i = 0; i < 5; i++) {
+                            expect(mockNext.calledWith(i)).to.true;
+                        }
+                        done();
+                    }, () => {
+                        done(new Error("should not be called"));
+                    });
+                expect(stubInstance.each.callCount).to.equal(1);
+                const args: any[] = stubInstance.each.getCall(0).args;
+                expect(args.length).to.equal(2);
+                for (let i = 0; i < 10; i++) {
+                    if (i == 5) {
+                        args[1](testError);
+                    } else {
+                        args[0](undefined, i);
+                    }
+                }
+            });
+            it('should only pass items until error occured in each callback', function (done) {
+                const testError: Error = new Error("test error");
+                testObject.DatabaseUtil.statementToList(stubInstance)
+                    .subscribe(mockNext, (err) => {
+                        expect(err).to.equal(testError);
+                        expect(mockNext.callCount).to.equal(5, "next should have been called just once");
+                        for (let i = 0; i < 5; i++) {
+                            expect(mockNext.calledWith(i)).to.true;
+                        }
+                        done();
+                    }, () => {
+                        done(new Error("should not be called"));
+                    });
+                expect(stubInstance.each.callCount).to.equal(1);
+                const args: any[] = stubInstance.each.getCall(0).args;
+                expect(args.length).to.equal(2);
+                for (let i = 0; i < 10; i++) {
+                    if (i == 5) {
+                        args[0](testError);
+                    } else {
+                        args[0](undefined, i);
+                    }
+                }
+                args[1](testError);
             });
         });
     });

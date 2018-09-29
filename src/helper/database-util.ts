@@ -21,15 +21,20 @@ export class DatabaseUtil {
     public static statementToList(stat: sqlite.Statement): Observable<any> {
         return Observable.create((pub: Observer<any>) => {
             stat.each((err: Error, row: any) => {
+                if (pub.closed === true)
+                    return;
                 if (err) {
+                    pub.error(err);
                 } else {
                     pub.next(row);
                 }
             }, (err: Error, count: number) => {
-                if (err) {
-                    pub.error(err);
-                } else {
-                    pub.complete();
+                if (pub.closed !== true) {
+                    if (err) {
+                        pub.error(err);
+                    } else {
+                        pub.complete();
+                    }
                 }
                 stat.finalize();
             });
