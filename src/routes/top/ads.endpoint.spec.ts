@@ -109,6 +109,31 @@ describe('routes/top/ads.endpoint', () => {
                     expect(call.args).to.deep.equal([12, 10]);
                 });
         });
+        it('should respond without limit, offset and client parameters present', () => {
+            const testValidationError: ValidationError = <any>{
+                message: "test error message"
+            };
+            const testValidatorResult: ValidatorResult = <any>{
+                valid: true,
+                errors: [testValidationError]
+            }
+            validatorInstanceStub.validate.returns(testValidatorResult);
+            return supertest(expressApp)
+                .get('')
+                .query({
+                    limit: 12,
+                    offset: 10,
+                    client: "test_client"
+                })
+                .then((res) => {
+                    expect(catchAllStub.callCount).to.equal(0);
+                    expect(res.status).to.equal(200);
+                    expect(res.body).to.deep.equal({ data: [{ "test": "object" }] });
+                    expect(databaseStubbedInstance.getTopAds.callCount).to.equal(1, "getTopAds should just be called once");
+                    let call = databaseStubbedInstance.getTopAds.getCall(0);
+                    expect(call.args).to.deep.equal([12, 10, "test_client"]);
+                });
+        });
 
         it('should not pass with validatorerror present', () => {
             const testValidationError: ValidationError = <any>{

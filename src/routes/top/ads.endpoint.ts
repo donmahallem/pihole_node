@@ -43,7 +43,7 @@ export const createTopAdsEndpoint = (database: PiholeDatabase): express.RequestH
                 queryOffset = parseInt(req.query.offset, 10);
             }
             if (req.query.client) {
-                database.getTopAds(req.query.limit, queryOffset, req.query.client)
+                database.getTopAds(queryLimit, queryOffset, req.query.client)
                     .subscribe(createListResponseObserver(req, res, next));
             } else {
                 database.getTopAds(queryLimit, queryOffset)
