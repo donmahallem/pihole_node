@@ -1,8 +1,8 @@
-import * as sqlite from "sqlite3";
+import * as sqlite from 'sqlite3';
 import {
     Observer,
     Observable
-} from "rxjs";
+} from 'rxjs';
 import {
     mergeMap
 } from 'rxjs/operators';
@@ -16,7 +16,7 @@ export class DatabaseUtil {
                 pub.next(stat);
                 pub.complete();
             });
-        })
+        });
     }
     public static statementToList(stat: sqlite.Statement): Observable<any> {
         return Observable.create((pub: Observer<any>) => {
@@ -43,7 +43,7 @@ export class DatabaseUtil {
     public static runStatement(stat: sqlite.Statement): Observable<any> {
         return Observable.create((pub: Observer<any>) => {
             let finalized: boolean = false;
-            stat.run(function (err: Error) {
+            stat.run((err: Error) => {
                 if (pub.closed !== true) {
                     if (err) {
                         pub.error(err);
