@@ -41,7 +41,6 @@ describe('response/object-response.observer', () => {
             res.on('end', function () {
                 expect(nextSpy.callCount).to.equal(0);
                 expect(res.statusCode).to.equal(200);
-                console.log(res._getData());
                 let respBody: any = JSON.parse(res._getData());
                 expect(res.header("Content-Type")).to.equal("application/json");
                 expect(respBody).to.deep.equal({ data: testData });

@@ -1,8 +1,8 @@
-import * as sqlite from "sqlite3";
+import * as sqlite from 'sqlite3';
 import {
     Observer,
     Observable
-} from "rxjs";
+} from 'rxjs';
 import {
     mergeMap
 } from 'rxjs/operators';
@@ -16,20 +16,25 @@ export class DatabaseUtil {
                 pub.next(stat);
                 pub.complete();
             });
-        })
+        });
     }
     public static statementToList(stat: sqlite.Statement): Observable<any> {
         return Observable.create((pub: Observer<any>) => {
             stat.each((err: Error, row: any) => {
+                if (pub.closed === true)
+                    return;
                 if (err) {
+                    pub.error(err);
                 } else {
                     pub.next(row);
                 }
             }, (err: Error, count: number) => {
-                if (err) {
-                    pub.error(err);
-                } else {
-                    pub.complete();
+                if (pub.closed !== true) {
+                    if (err) {
+                        pub.error(err);
+                    } else {
+                        pub.complete();
+                    }
                 }
                 stat.finalize();
             });
@@ -37,13 +42,19 @@ export class DatabaseUtil {
     }
     public static runStatement(stat: sqlite.Statement): Observable<any> {
         return Observable.create((pub: Observer<any>) => {
-            stat.run(function (err: Error, count: number) {
-                if (err) {
-                    pub.error(err);
-                } else {
-                    pub.complete();
+            let finalized: boolean = false;
+            stat.run((err: Error) => {
+                if (pub.closed !== true) {
+                    if (err) {
+                        pub.error(err);
+                    } else {
+                        pub.complete();
+                    }
                 }
-                stat.finalize();
+                if (!finalized) {
+                    stat.finalize();
+                    finalized = true;
+                }
             });
         });
     }
