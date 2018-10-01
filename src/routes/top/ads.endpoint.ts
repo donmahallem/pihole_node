@@ -18,7 +18,7 @@ export const TopAdsEndpointSchema: Schema = {
     "type": "object",
     "properties": {
         "offset": { "$ref": PageOffsetSchema.id },
-        "address": { "$ref": PageLimitSchema.id }
+        "limit": { "$ref": PageLimitSchema.id }
     }
 };
 

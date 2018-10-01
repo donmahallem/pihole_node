@@ -14,15 +14,58 @@ import * as testObject from "./ads.endpoint";
 import * as httpMocks from "node-mocks-http";
 import { PiholeDatabase } from "../../helper/pihole-database";
 import { of as rxjsOf } from "rxjs";
-import { Validator, ValidatorResult, ValidationError } from "jsonschema";
+import * as jsonschema from "jsonschema";
 import * as supertest from 'supertest';
 
 describe('routes/top/ads.endpoint', () => {
+    describe('createTopAdsEndpointSchemaValidator', () => {
+        let testValidator: jsonschema.Validator;
+
+        beforeEach(() => {
+            testValidator = testObject.createTopAdsEndpointSchemaValidator();
+        });
+        afterEach(() => {
+        });
+        it('should filter all', () => {
+            const testData: any = {
+                limit: 12,
+                offset: 29
+            };
+            const result: jsonschema.ValidatorResult = testValidator.validate(testData, testObject.TopAdsEndpointSchema);
+            expect(result.valid).to.be.true;
+        });
+        it('should fail for negative numbers', () => {
+            const testData: any = {
+                limit: -12,
+                offset: -29
+            };
+            const result: jsonschema.ValidatorResult = testValidator.validate(testData, testObject.TopAdsEndpointSchema);
+            expect(result.valid).to.not.be.true;
+            expect(result.errors.length).to.equal(2);
+        });
+        it('should fail for limit larger than 50', () => {
+            const testData: any = {
+                limit: 51,
+                offset: 12
+            };
+            const result: jsonschema.ValidatorResult = testValidator.validate(testData, testObject.TopAdsEndpointSchema);
+            expect(result.valid).to.not.be.true;
+            expect(result.errors.length).to.equal(1);
+        });
+        it('should fail for offset smaller than 0', () => {
+            const testData: any = {
+                offset: -1
+            };
+            const result: jsonschema.ValidatorResult = testValidator.validate(testData, testObject.TopAdsEndpointSchema);
+            expect(result.valid).to.not.be.true;
+            expect(result.errors.length).to.equal(1);
+        });
+    });
     describe('createTopAdsEndpoint', function () {
         var nextSpy: sinon.SinonSpy;
         var databaseStubbedInstance: sinon.SinonStubbedInstance<PiholeDatabase>;
         let createValidatorStub: sinon.SinonStub;
-        let validatorInstanceStub: sinon.SinonStubbedInstance<Validator>
+        let validatorInstanceStub: sinon.SinonStubbedInstance<jsonschema.Validator>
         let expressApp: express.Express;
         let catchAllStub: sinon.SinonSpy;
         const testErrorResponse: any = {
@@ -39,7 +82,7 @@ describe('routes/top/ads.endpoint', () => {
             catchAllStub = sinon.stub();
         });
         beforeEach(() => {
-            validatorInstanceStub = sinon.createStubInstance(Validator);
+            validatorInstanceStub = sinon.createStubInstance(jsonschema.Validator);
             createValidatorStub.callsFake(() => {
                 return validatorInstanceStub;
             });
@@ -54,6 +97,8 @@ describe('routes/top/ads.endpoint', () => {
             });
         });
         afterEach(() => {
+            expect(validatorInstanceStub.validate.callCount).to.equal(1);
+            expect(validatorInstanceStub.validate.getCall(0).args[1]).to.deep.equal(testObject.TopAdsEndpointSchema);
             databaseStubbedInstance.getTopAds.resetHistory();
             createValidatorStub.reset();
             catchAllStub.resetHistory();
@@ -64,10 +109,10 @@ describe('routes/top/ads.endpoint', () => {
 
 
         it('should respond without query parameters', () => {
-            const testValidationError: ValidationError = <any>{
+            const testValidationError: jsonschema.ValidationError = <any>{
                 message: "test error message"
             };
-            const testValidatorResult: ValidatorResult = <any>{
+            const testValidatorResult: jsonschema.ValidatorResult = <any>{
                 valid: true,
                 errors: [testValidationError]
             }
@@ -86,10 +131,10 @@ describe('routes/top/ads.endpoint', () => {
         });
 
         it('should respond without limit and offset parameters present', () => {
-            const testValidationError: ValidationError = <any>{
+            const testValidationError: jsonschema.ValidationError = <any>{
                 message: "test error message"
             };
-            const testValidatorResult: ValidatorResult = <any>{
+            const testValidatorResult: jsonschema.ValidatorResult = <any>{
                 valid: true,
                 errors: [testValidationError]
             }
@@ -110,10 +155,10 @@ describe('routes/top/ads.endpoint', () => {
                 });
         });
         it('should respond without limit, offset and client parameters present', () => {
-            const testValidationError: ValidationError = <any>{
+            const testValidationError: jsonschema.ValidationError = <any>{
                 message: "test error message"
             };
-            const testValidatorResult: ValidatorResult = <any>{
+            const testValidatorResult: jsonschema.ValidatorResult = <any>{
                 valid: true,
                 errors: [testValidationError]
             }
@@ -136,10 +181,10 @@ describe('routes/top/ads.endpoint', () => {
         });
 
         it('should not pass with validatorerror present', () => {
-            const testValidationError: ValidationError = <any>{
+            const testValidationError: jsonschema.ValidationError = <any>{
                 message: "test error message"
             };
-            const testValidatorResult: ValidatorResult = <any>{
+            const testValidatorResult: jsonschema.ValidatorResult = <any>{
                 valid: false,
                 errors: [testValidationError]
             }
@@ -147,7 +192,6 @@ describe('routes/top/ads.endpoint', () => {
             return supertest(expressApp)
                 .get('')
                 .then((res) => {
-                    console.log(res.body, res.header);
                     expect(res.status).to.equal(123);
                     expect(catchAllStub.callCount).to.equal(1);
                     expect(catchAllStub.getCall(0).args[0].message).to.equal(RouteError.fromValidatorError(testValidationError).message);
