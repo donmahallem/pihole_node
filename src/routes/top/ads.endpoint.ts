@@ -14,11 +14,11 @@ import {
 } from './../../schemas';
 
 export const TopAdsEndpointSchema: Schema = {
-    "id": "/TopAdsEndpointSchema",
-    "type": "object",
-    "properties": {
-        "offset": { "$ref": PageOffsetSchema.id },
-        "limit": { "$ref": PageLimitSchema.id }
+    id: '/TopAdsEndpointSchema',
+    type: 'object',
+    properties: {
+        offset: { $ref: PageOffsetSchema.id },
+        limit: { $ref: PageLimitSchema.id }
     }
 };
 
