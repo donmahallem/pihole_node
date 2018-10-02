@@ -90,10 +90,8 @@ describe('routes/top/ads.endpoint', () => {
             expressApp.use(testObject.createTopAdsEndpoint(<any>databaseStubbedInstance));
             expressApp.use((a: any, b: express.Request, c: express.Response, d: express.NextFunction) => {
                 catchAllStub(a, b, c, d);
-                c.status(123);
-                c.setHeader("Content-Type", "application/json");
-                c.setHeader("a", "b");
-                c.send("asdf");
+                c.setHeader('Content-Type', 'application/json');
+                d(a);
             });
         });
         afterEach(() => {
@@ -170,7 +168,9 @@ describe('routes/top/ads.endpoint', () => {
                     offset: 10,
                     client: "test_client"
                 })
-                .then((res) => {
+                .expect('Content-Type', /json/)
+                .expect(200)
+                .then((res: supertest.Response) => {
                     expect(catchAllStub.callCount).to.equal(0);
                     expect(res.status).to.equal(200);
                     expect(res.body).to.deep.equal({ data: [{ "test": "object" }] });
@@ -190,10 +190,12 @@ describe('routes/top/ads.endpoint', () => {
             }
             validatorInstanceStub.validate.returns(testValidatorResult);
             return supertest(expressApp)
-                .get('')
-                .then((res) => {
-                    expect(res.status).to.equal(123);
+                .get('/')
+                .set('Accept', 'application/json')
+                .then((res: supertest.Response) => {
+                    expect(res.status).to.equal(401);
                     expect(catchAllStub.callCount).to.equal(1);
+                    expect(databaseStubbedInstance.getTopAds.callCount).to.equal(0, "getTopAds should just be called once");
                     expect(catchAllStub.getCall(0).args[0].message).to.equal(RouteError.fromValidatorError(testValidationError).message);
                     //expect(res.body).to.deep.equal(testErrorResponse);
                 });
