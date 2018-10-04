@@ -1,7 +1,7 @@
-import * as express from "express";
-import { createTopEndpoint } from "./top.endpoint";
-import { createTopClientsEndpoint } from "./clients.endpoint";
-import { PiholeDatabase } from "../../helper/pihole-database";
+import * as express from 'express';
+import { createTopEndpoint } from './top.endpoint';
+import { createTopClientsEndpoint } from './clients.endpoint';
+import { PiholeDatabase } from '../../helper/pihole-database';
 
 /**
  * The router for the api endpoints
@@ -12,8 +12,8 @@ export const createTopRouter = (): express.Router => {
 
     const db: PiholeDatabase = PiholeDatabase.getInstance();
 
-    router.get("/domains", createTopEndpoint(db.getTopDomains));
-    router.get("/clients", createTopClientsEndpoint(db));
-    router.get("/ads", createTopEndpoint(db.getTopAds));
+    router.get('/domains', createTopEndpoint(db.getTopDomains));
+    router.get('/clients', createTopClientsEndpoint(db));
+    router.get('/ads', createTopEndpoint(db.getTopAds));
     return router;
 };
