@@ -30,6 +30,7 @@ describe('routes/top/top.endpoint', () => {
             createSchemaValidatorStub.returns(validatorStubInstance);
         });
         afterEach(() => {
+            expect(validatorStubInstance.validate.callCount).to.equal(1);
             expect(createSchemaValidatorStub.callCount).to.equal(1);
             expect(createSchemaValidatorStub.getCall(0).args).to.deep.equal([true, true, true]);
             createSchemaValidatorStub.reset();
@@ -88,6 +89,7 @@ describe('routes/top/top.endpoint', () => {
                             data: ["a", "b", "d"]
                         });
                         expect(dbCallback.getCall(0).args).to.deep.equal([25, 0]);
+                        expect(validatorStubInstance.validate.getCall(0).args).to.deep.equal([{}, testObject.TopEndpointSchema]);
                     });
             });
             it('should respond with all parameters provided', () => {
@@ -105,6 +107,11 @@ describe('routes/top/top.endpoint', () => {
                             data: ["a", "b", "d"]
                         });
                         expect(dbCallback.getCall(0).args).to.deep.equal([13, 12, "test_client"]);
+                        expect(validatorStubInstance.validate.getCall(0).args).to.deep.equal([{
+                            offset: "12",
+                            limit: "13",
+                            client: "test_client"
+                        }, testObject.TopEndpointSchema]);
                     });
             });
             it('should respond with all parameters provided except client', () => {
@@ -121,6 +128,10 @@ describe('routes/top/top.endpoint', () => {
                             data: ["a", "b", "d"]
                         });
                         expect(dbCallback.getCall(0).args).to.deep.equal([13, 12]);
+                        expect(validatorStubInstance.validate.getCall(0).args).to.deep.equal([{
+                            offset: "12",
+                            limit: "13"
+                        }, testObject.TopEndpointSchema]);
                     });
             });
         });

@@ -1,7 +1,7 @@
 import { Schema } from 'jsonschema';
 
 export const PageLimitSchema: Schema = {
-    id: "/PageLimitSchema",
+    id: '/PageLimitSchema',
     title: 'Limit',
     description: 'The maximum number of entries to return',
     anyOf: [

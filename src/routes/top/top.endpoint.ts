@@ -8,7 +8,8 @@ import {
 import { createListResponseObserver } from '../../response/list-response.observer';
 import {
     PageLimitSchema,
-    PageOffsetSchema
+    PageOffsetSchema,
+    ClientSchema
 } from './../../schemas';
 import {
     Schema,
@@ -19,12 +20,14 @@ import {
 import {
     CommonUtil
 } from './common-util';
-export const TopDomainsEndpointSchema: Schema = {
-    id: '/TopDomainsEndpointSchema',
+
+export const TopEndpointSchema: Schema = {
+    id: '/TopEndpointSchema',
     type: 'object',
     properties: {
         offset: { $ref: PageOffsetSchema.id },
-        limit: { $ref: PageLimitSchema.id }
+        limit: { $ref: PageLimitSchema.id },
+        client: { $ref: ClientSchema.id }
     }
 };
 /**
@@ -58,7 +61,7 @@ export const TopDomainsEndpointSchema: Schema = {
 export const createTopEndpoint = (databaseFunction: { (limit: number, offset: number, client?: string) }): express.RequestHandler => {
     const schemaValidator: Validator = CommonUtil.createSchemaValidator(true, true, true);
     return (req: express.Request, res: express.Response, next: express.NextFunction): void => {
-        const validatonResult: ValidatorResult = schemaValidator.validate(req.query, TopDomainsEndpointSchema);
+        const validatonResult: ValidatorResult = schemaValidator.validate(req.query, TopEndpointSchema);
         if (validatonResult.valid === true) {
             let queryLimit: number = 25;
             let queryOffset: number = 0;
@@ -80,4 +83,3 @@ export const createTopEndpoint = (databaseFunction: { (limit: number, offset: nu
         }
     };
 };
-
