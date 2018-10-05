@@ -205,7 +205,7 @@ describe('src/helper/database-util', () => {
             });
         });
 
-        describe('runStatement', () => {
+        describe('listQuery', () => {
             let prepareStatementStub: sinon.SinonStub;
             let statementToListStub: sinon.SinonStub;
             let mockNext: sinon.SinonSpy;

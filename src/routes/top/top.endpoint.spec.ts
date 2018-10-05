@@ -10,41 +10,29 @@ import {
     RouteError
 } from "../route-error";
 import * as express from "express";
-import * as testObject from "./clients.endpoint";
+import * as testObject from "./top.endpoint";
 import * as httpMocks from "node-mocks-http";
 import { of as rxjsOf } from "rxjs";
 import * as supertest from 'supertest';
 import * as commonUtil from './common-util';
 import * as jsonschema from 'jsonschema';
-import { sqlite3 } from "sqlite3";
-import { PiholeDatabase } from "../../helper/pihole-database";
-import { PageOffsetSchema, PageLimitSchema } from "../../schemas";
-describe('routes/top/clients.endpoint', () => {
-    describe('createSchemaValidator', () => {
-        it('should create correct schema validator', () => {
-            const validator: jsonschema.Validator = testObject.createSchemaValidator();
-            expect(validator.schemas).to.contain.keys([PageOffsetSchema.id, PageLimitSchema.id]);
-            expect(validator.schemas[PageOffsetSchema.id]).to.deep.equal(PageOffsetSchema);
-            expect(validator.schemas[PageLimitSchema.id]).to.deep.equal(PageLimitSchema);
-        });
-    });
-    describe('createTopClientsEndpoint', function () {
+describe('routes/top/top.endpoint', () => {
+    describe('createTopEndpoint', function () {
         let expressApp: express.Express;
         let createSchemaValidatorStub: sinon.SinonStub;
         let validatorStubInstance: sinon.SinonStubbedInstance<jsonschema.Validator>;
-        let databaseInstanceStub: sinon.SinonStubbedInstance<PiholeDatabase>;
         before(function () {
-            createSchemaValidatorStub = sinon.stub(testObject, "createSchemaValidator");
+            createSchemaValidatorStub = sinon.stub(commonUtil.CommonUtil, "createSchemaValidator");
         });
         beforeEach(() => {
             expressApp = express();
             validatorStubInstance = sinon.createStubInstance(jsonschema.Validator);
             createSchemaValidatorStub.returns(validatorStubInstance);
-            databaseInstanceStub = sinon.createStubInstance(PiholeDatabase);
         });
         afterEach(() => {
             expect(validatorStubInstance.validate.callCount).to.equal(1);
             expect(createSchemaValidatorStub.callCount).to.equal(1);
+            expect(createSchemaValidatorStub.getCall(0).args).to.deep.equal([true, true, true]);
             createSchemaValidatorStub.reset();
         });
         after(() => {
@@ -66,7 +54,7 @@ describe('routes/top/clients.endpoint', () => {
 
             });
             it('should respond with client present', () => {
-                expressApp.all("/", testObject.createTopClientsEndpoint(<any>databaseInstanceStub));
+                expressApp.all("/", testObject.createTopEndpoint(dbCallback));
                 return supertest(expressApp)
                     .get("/")
                     .expect(401)
@@ -76,21 +64,23 @@ describe('routes/top/clients.endpoint', () => {
             });
         });
         describe('schema is valid', () => {
+            let dbCallback: sinon.SinonStub;
             beforeEach(() => {
+                dbCallback = sinon.stub();
                 validatorStubInstance.validate.returns({
                     valid: true
                 });
-                databaseInstanceStub.getTopClients.returns(rxjsOf("a", "b", "d"));
+                dbCallback.returns(rxjsOf("a", "b", "d"));
             });
             afterEach(() => {
-                expect(databaseInstanceStub.getTopClients.callCount).to.equal(1);
-                databaseInstanceStub.getTopClients.reset();
+                expect(dbCallback.callCount).to.equal(1);
+                dbCallback.resetHistory();
             });
             after(() => {
 
             });
             it('should respond default parameter values', () => {
-                expressApp.all("/", testObject.createTopClientsEndpoint(<any>databaseInstanceStub));
+                expressApp.all("/", testObject.createTopEndpoint(dbCallback));
                 return supertest(expressApp)
                     .get("/")
                     .expect(200)
@@ -98,34 +88,34 @@ describe('routes/top/clients.endpoint', () => {
                         expect(data.body).to.deep.equal({
                             data: ["a", "b", "d"]
                         });
-                        expect(databaseInstanceStub.getTopClients.getCall(0).args).to.deep.equal([25, 0]);
-                        expect(validatorStubInstance.validate.getCall(0).args).to
-                            .deep.equal([{},
-                            testObject.ClientsEndpointSchema]);
+                        expect(dbCallback.getCall(0).args).to.deep.equal([25, 0]);
+                        expect(validatorStubInstance.validate.getCall(0).args).to.deep.equal([{}, testObject.TopEndpointSchema]);
                     });
             });
             it('should respond with all parameters provided', () => {
-                expressApp.all("/", testObject.createTopClientsEndpoint(<any>databaseInstanceStub));
+                expressApp.all("/", testObject.createTopEndpoint(dbCallback));
                 return supertest(expressApp)
                     .get("/")
                     .query({
                         offset: 12,
-                        limit: 13
+                        limit: 13,
+                        client: "test_client"
                     })
                     .expect(200)
                     .then((data: supertest.Response) => {
                         expect(data.body).to.deep.equal({
                             data: ["a", "b", "d"]
                         });
-                        expect(databaseInstanceStub.getTopClients.getCall(0).args).to.deep.equal([13, 12]);
+                        expect(dbCallback.getCall(0).args).to.deep.equal([13, 12, "test_client"]);
                         expect(validatorStubInstance.validate.getCall(0).args).to.deep.equal([{
                             offset: "12",
-                            limit: "13"
-                        }, testObject.ClientsEndpointSchema]);
+                            limit: "13",
+                            client: "test_client"
+                        }, testObject.TopEndpointSchema]);
                     });
             });
             it('should respond with all parameters provided except client', () => {
-                expressApp.all("/", testObject.createTopClientsEndpoint(<any>databaseInstanceStub));
+                expressApp.all("/", testObject.createTopEndpoint(dbCallback));
                 return supertest(expressApp)
                     .get("/")
                     .query({
@@ -137,11 +127,11 @@ describe('routes/top/clients.endpoint', () => {
                         expect(data.body).to.deep.equal({
                             data: ["a", "b", "d"]
                         });
-                        expect(databaseInstanceStub.getTopClients.getCall(0).args).to.deep.equal([13, 12]);
+                        expect(dbCallback.getCall(0).args).to.deep.equal([13, 12]);
                         expect(validatorStubInstance.validate.getCall(0).args).to.deep.equal([{
                             offset: "12",
                             limit: "13"
-                        }, testObject.ClientsEndpointSchema]);
+                        }, testObject.TopEndpointSchema]);
                     });
             });
         });

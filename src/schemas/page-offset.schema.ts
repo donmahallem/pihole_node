@@ -1,7 +1,7 @@
 import { Schema } from 'jsonschema';
 
 export const PageOffsetSchema: Schema = {
-    id: "/PageOffsetSchema",
+    id: '/PageOffsetSchema',
     title: 'Offset',
     description: 'Offset for dataset list queries',
     anyOf: [
