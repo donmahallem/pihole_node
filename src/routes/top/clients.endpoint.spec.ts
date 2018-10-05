@@ -18,7 +18,16 @@ import * as commonUtil from './common-util';
 import * as jsonschema from 'jsonschema';
 import { sqlite3 } from "sqlite3";
 import { PiholeDatabase } from "../../helper/pihole-database";
+import { PageOffsetSchema, PageLimitSchema } from "../../schemas";
 describe('routes/top/clients.endpoint', () => {
+    describe('createSchemaValidator', () => {
+        it('should create correct schema validator', () => {
+            const validator: jsonschema.Validator = testObject.createSchemaValidator();
+            expect(validator.schemas).to.contain.keys([PageOffsetSchema.id, PageLimitSchema.id]);
+            expect(validator.schemas[PageOffsetSchema.id]).to.deep.equal(PageOffsetSchema);
+            expect(validator.schemas[PageLimitSchema.id]).to.deep.equal(PageLimitSchema);
+        });
+    });
     describe('createTopClientsEndpoint', function () {
         let expressApp: express.Express;
         let createSchemaValidatorStub: sinon.SinonStub;
