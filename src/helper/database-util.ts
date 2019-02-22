@@ -9,7 +9,7 @@ import {
 
 
 export class DatabaseUtil {
-    public static prepareStatement(db: sqlite.Database, statement: string, params?: any) {
+    public static prepareStatement(db: sqlite.Database, statement: string, params?: any): Observable<sqlite.Statement> {
         return Observable.create((pub: Observer<sqlite.Statement>) => {
             db.serialize(() => {
                 const stat: sqlite.Statement = db.prepare(statement, params);

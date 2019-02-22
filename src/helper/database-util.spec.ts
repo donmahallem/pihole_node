@@ -28,7 +28,7 @@ describe('src/helper/database-util', () => {
                 mockNext = sinon.spy();
                 databaseStub = sinon.createStubInstance(sqlite3.Database);
                 databaseStub.serialize.callsArg(0);
-                databaseStub.prepare.returns(testCompiledStatement);
+                databaseStub.prepare.returns(<any>testCompiledStatement);
                 done();
                 //mockRequest.expects("method").once().throws();
             });

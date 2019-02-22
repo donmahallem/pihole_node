@@ -54,7 +54,7 @@ describe('routes/top/clients.endpoint', () => {
             let dbCallback: sinon.SinonStub;
             beforeEach(() => {
                 dbCallback = sinon.stub();
-                validatorStubInstance.validate.returns({
+                validatorStubInstance.validate.returns(<any>{
                     valid: false,
                     errors: [{ message: "test error message" }]
                 });
@@ -77,7 +77,7 @@ describe('routes/top/clients.endpoint', () => {
         });
         describe('schema is valid', () => {
             beforeEach(() => {
-                validatorStubInstance.validate.returns({
+                validatorStubInstance.validate.returns(<any>{
                     valid: true
                 });
                 databaseInstanceStub.getTopClients.returns(rxjsOf("a", "b", "d"));

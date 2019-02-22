@@ -42,7 +42,7 @@ describe('routes/top/top.endpoint', () => {
             let dbCallback: sinon.SinonStub;
             beforeEach(() => {
                 dbCallback = sinon.stub();
-                validatorStubInstance.validate.returns({
+                validatorStubInstance.validate.returns(<any>{
                     valid: false,
                     errors: [{ message: "test error message" }]
                 });
@@ -67,7 +67,7 @@ describe('routes/top/top.endpoint', () => {
             let dbCallback: sinon.SinonStub;
             beforeEach(() => {
                 dbCallback = sinon.stub();
-                validatorStubInstance.validate.returns({
+                validatorStubInstance.validate.returns(<any>{
                     valid: true
                 });
                 dbCallback.returns(rxjsOf("a", "b", "d"));
