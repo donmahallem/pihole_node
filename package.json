@@ -55,7 +55,7 @@
         "source-map-support": "^0.5.12",
         "supertest": "^4.0.2",
         "ts-mocha": "^6.0.0",
-        "ts-node": "^8.1.0",
+        "ts-node": "^8.2.0",
         "typedoc": "^0.14.2",
         "typescript": "^3.4.5"
     },
