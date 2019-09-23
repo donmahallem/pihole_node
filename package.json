@@ -50,7 +50,7 @@
         "node-mocks-http": "~1.8.0",
         "nodemon": "~1.19.2",
         "nyc": "~14.1.1",
-        "sinon": "~7.4.2",
+        "sinon": "~7.5.0",
         "sinon-chai": "~3.3.0",
         "source-map-support": "~0.5.13",
         "supertest": "~4.0.2",
