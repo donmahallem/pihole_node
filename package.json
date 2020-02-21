@@ -57,7 +57,7 @@
         "ts-mocha": "~6.0.0",
         "ts-node": "~8.6.2",
         "typedoc": "~0.16.10",
-        "typescript": "~3.7.5"
+        "typescript": "~3.8.2"
     },
     "nyc": {
         "include": [
