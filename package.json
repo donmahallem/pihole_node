@@ -29,7 +29,7 @@
         "sqlite3": "~5.0.2"
     },
     "devDependencies": {
-        "@types/bcrypt": "3.0.0",
+        "@types/bcrypt": "3.0.1",
         "@types/chai": "4.2.16",
         "@types/chai-http": "4.2.0",
         "@types/cookie-parser": "1.4.2",
